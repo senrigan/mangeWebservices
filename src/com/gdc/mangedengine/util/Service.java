@@ -6,6 +6,7 @@ public class Service {
 	private String name;
 	private String urlDA;
 	private String urlSV;
+	private long idResource;
 	
 	public void setName(String name){
 		this.name=name;
@@ -45,6 +46,22 @@ public class Service {
 
 	public void setUrlSV(String urlSV) {
 		this.urlSV = urlSV;
+	}
+	
+	
+	
+
+	public long getIdResource() {
+		return idResource;
+	}
+
+	public void setIdResource(long idResource) {
+		this.idResource = idResource;
+	}
+
+	@Override
+	public String toString() {
+		return "Service [da=" + da + ", sv=" + sv + ", name=" + name + ", urlDA=" + urlDA + ", urlSV=" + urlSV + "]";
 	}
 	
 	
