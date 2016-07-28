@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import jdk.management.resource.ResourceId;
 
 
 
@@ -65,7 +64,7 @@ public class GCPAppPoller {
 	}
 	
 	
-	private ArrayList<AlertObject> getAllAlertsForServices(String  url,long lastId){
+	public ArrayList<AlertObject> getAllAlertsForServices(String  url,long lastId){
 		ResultSet executeQuery=null;
 		ManageEngineConector conector=new ManageEngineConector();
 		Connection connection = conector.getConnection();
@@ -95,7 +94,7 @@ public class GCPAppPoller {
 	}
 	
 	
-	private static  ArrayList<AlertObject> getAllAlertForidResources(long idResource){
+	public static  ArrayList<AlertObject> getAllAlertForidResources(long idResource){
 		ResultSet executeQuery=null;
 		ManageEngineConector conector=new ManageEngineConector();
 		Connection connection = conector.getConnection();
@@ -126,7 +125,7 @@ public class GCPAppPoller {
 	
 	
 	
-	private static  ArrayList<AlertObject> getAllAlertForidResources(long idResource,long lastId){
+	public   ArrayList<AlertObject> getAllAlertForidResources(long idResource,long lastId){
 		ResultSet executeQuery=null;
 		ManageEngineConector conector=new ManageEngineConector();
 		Connection connection = conector.getConnection();
@@ -158,7 +157,7 @@ public class GCPAppPoller {
 	}
 	
 	
-	private  long getIDForServices(String url) throws IOException{
+	public static  long getIDForServices(String url) throws IOException{
 		ResultSet executeQuery=null;
 		ManageEngineConector conector=new ManageEngineConector();
 		Connection connection = conector.getConnection();
@@ -248,30 +247,7 @@ public class GCPAppPoller {
 
 
 	private class InserterWebservices implements  Runnable {
-		private Long idResource;
-		private Long lastId;
 		
-		public InserterWebservices(long idResoruce){
-			this.idResource=idResoruce;
-		}
-		
-		public InserterWebservices(long idResoruce,long lastId){
-			idResoruce=idResoruce;
-			this.lastId=lastId;
-		}
-		
-		public void run() {
-			if(lastId!=null){
-				
-			}else{
-				ArrayList<AlertObject> allAlertForidResources = GCPAppPoller.getAllAlertForidResources(idResource);
-				
-			}
-		}
-		
-		private void sendToWebServices(ArrayList<AlertObject> alerts){
-			
-		}
 	}
 	
 	
