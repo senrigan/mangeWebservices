@@ -117,8 +117,11 @@ public class GCPAppPoller {
 	
 	public static HashMap<String  , HashSet<AlertObject>> getAllAlerts(Connection conector){
 		try {
-			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order by asc");
+			System.out.println("**");
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
+			System.out.println("executing queryt");
 			ResultSet executeQuery = prepareStatement.executeQuery();
+			System.out.println("execute quer"+executeQuery);
 			AlertObject alert=null;
 			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
 			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
@@ -131,6 +134,7 @@ public class GCPAppPoller {
 				alert.setTypeAlert(executeQuery.getLong("severity"));
 				alert.setIdAlert(executeQuery.getLong("id"));
 				alertList.add(alert);
+				System.out.println("alert"+alert);
 				alertMap.put(alert.getIdSource(), alertList);
 			}
 			return alertMap;
@@ -144,19 +148,25 @@ public class GCPAppPoller {
 	
 	
 	public static HashMap<String , HashSet<AlertObject>> getAllAlertsAllManageEngine(){
+		System.out.println("*");
 		Connection manageEnigne1 = getManageEngineConector();
+		System.out.println(manageEnigne1);
 		HashMap<String, HashSet<AlertObject>> allAlerts=new HashMap<String, HashSet<AlertObject>>();
 		HashMap<String, HashSet<AlertObject>> alerts1 = getAllAlerts(manageEnigne1);
 		if(alerts1!=null)
 			allAlerts.putAll(alerts1);
-		Connection manageEngine2 = getManageEngine2Conector();
-		HashMap<String, HashSet<AlertObject>> alerts2 = getAllAlerts(manageEngine2);
-		if(alerts2!=null)
-			allAlerts.putAll(alerts2);
-		Connection manageEngine3Conector = getManageEngine3Conector();
-		HashMap<String, HashSet<AlertObject>> alerts3 = getAllAlerts(manageEngine3Conector);
-		if(alerts3!=null)
-			allAlerts.putAll(alerts3);
+//		Connection manageEngine2 = getManageEngine2Conector();
+//		HashMap<String, HashSet<AlertObject>> alerts2 = getAllAlerts(manageEngine2);
+//		System.out.println("alerts 2"+alerts2);
+//
+//		if(alerts2!=null)
+//			allAlerts.putAll(alerts2);
+//		Connection manageEngine3Conector = getManageEngine3Conector();
+//		HashMap<String, HashSet<AlertObject>> alerts3 = getAllAlerts(manageEngine3Conector);
+//		System.out.println("alerts 3"+alerts2);
+//
+//		if(alerts3!=null)
+//			allAlerts.putAll(alerts3);
 		return allAlerts;
 	}
 	

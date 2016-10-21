@@ -36,8 +36,9 @@ public class AlertPolertGCP {
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
+		System.out.println("first execution");
 		GCPAppPoller poller=new GCPAppPoller();
-		alertsByServicesObjectMangeEng = poller.getAllAlertsAllManageEngine();
+		alertsByServicesObjectMangeEng =GCPAppPoller.getAllAlertsAllManageEngine();
 		ArrayList<Service> allServices = poller.getAllServices();
 		getAlertForServices(allServices);
 		
@@ -75,17 +76,21 @@ private HashMap<String,AlertsServices> getAlertForServices(ArrayList<Service> se
 			 System.out.println("services id"+service.getIdService());
 	
 			try {
-					idForServices=service.isEnableDA()?GCPAppPoller.getIDForServices(service.geturlDA()):-1;
+				idForServices=service.isEnableDA()?GCPAppPoller.getIDForServices(service.geturlDA()):-1;
+				if(idForServices!=-1){
 					AlertsServices alertsServices=new AlertsServices();
-					 HashSet<AlertObject> alerts = alertsByServicesObjectMangeEng.get(idForServices);
-					if(!alerts.isEmpty()){
+					System.out.println("id for services"+idForServices);
+					HashSet<AlertObject> alerts = alertsByServicesObjectMangeEng.get(idForServices);
+					if(alerts!=null && !alerts.isEmpty()){
 						service.setIdResource(idForServices);
-	//					service.setLastIdConsult(alerts.get(alerts.size()-1).getIdAlert());
+						//					service.setLastIdConsult(alerts.get(alerts.size()-1).getIdAlert());
 						alertsServices.setServices(service);
 						alertsServices.setAlerts(new ArrayList<AlertObject>(alerts));
 						alertsServices.setType(AlertType.DA);
 						addAlert(alertsServices, service.geturlSV());							
 					}
+					
+				}
 			} catch (IOException e) {
 	//			e.printStackTrace();
 				logger.info("cannot found the services in manageengine for application"+service.getName());
@@ -94,15 +99,19 @@ private HashMap<String,AlertsServices> getAlertForServices(ArrayList<Service> se
 			
 			try {
 					idForServices=service.isEnableSV()?GCPAppPoller.getIDForServices(service.geturlSV()):-1;
-					AlertsServices alertsServices=new AlertsServices();
-					 HashSet<AlertObject> alerts = alertsByServicesObjectMangeEng.get(idForServices);
-					if(!alerts.isEmpty()){
-						service.setIdResource(idForServices);
-	//					service.setLastIdConsult(alerts.get(alerts.size()-1).getIdAlert());
-						alertsServices.setServices(service);
-						alertsServices.setAlerts(new ArrayList<AlertObject>(alerts));
-						alertsServices.setType(AlertType.SV);
-						addAlert(alertsServices, service.geturlSV());							
+					if(idForServices!=-1){
+						AlertsServices alertsServices=new AlertsServices();
+						System.out.println("id for services"+idForServices);
+						HashSet<AlertObject> alerts = alertsByServicesObjectMangeEng.get(idForServices);
+						if(alerts!=null &&!alerts.isEmpty()){
+							service.setIdResource(idForServices);
+							//					service.setLastIdConsult(alerts.get(alerts.size()-1).getIdAlert());
+							alertsServices.setServices(service);
+							alertsServices.setAlerts(new ArrayList<AlertObject>(alerts));
+							alertsServices.setType(AlertType.SV);
+							addAlert(alertsServices, service.geturlSV());							
+						}
+						
 					}
 	//				report(service, alerts, "SV", idForServices);
 			} catch (IOException e) {
@@ -326,7 +335,9 @@ public static  HashMap<String, HashSet<AlertObject>> getNewAlerts(){
 	private void sendReport(){
 		Set<String> keySet = alerByService.keySet();
 		ExecutorService executor = Executors.newFixedThreadPool(10);
+		System.out.println("sending report");
 		for (String string : keySet) {
+			System.out.println(string);
 			AlertsServices alertsServices = alerByService.get(string);
 			executor.execute(new ServicesReporter(alertsServices));
 		}
