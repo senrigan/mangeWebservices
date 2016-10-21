@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 
 import com.gdc.mangedengine.util.AlertObject;
 import com.gdc.mangedengine.util.AlertPolertGCP;
+import com.gdc.mangedengine.util.AlertService;
 import com.gdc.mangedengine.util.AlertsServices;
 import com.gdc.mangedengine.util.GCPAppPoller;
 import com.gdc.mangedengine.util.Service;
@@ -27,35 +28,54 @@ public class ServicesScanerTask extends TimerTask{
 	 
 		@Override
 		public void run() {
+			HashMap<String, HashSet<AlertObject>> allNewAlertManageEngine = GCPAppPoller.getAllAlertsAllManageEngine();
 			System.out.println("Starting Scanning for alerts "+Calendar.getInstance().getTime());
 			Set<String> keySet = alertServices.keySet();
 			ExecutorService executor = Executors.newFixedThreadPool(10);
 	
 			for (String key : keySet) {
 				AlertsServices alertsServices = alertServices.get(key);
+				Service service = alertsServices.getService();
 				if(!alertsServices.isNewServices()){
-					Service service = alertsServices.getService();
 					long idResource = service.getIdResource();
-					long lastIdConsult = service.getLastIdConsult();
-					System.out.println("** id resources "+idResource+" lastid"+lastIdConsult);
-					ArrayList<AlertObject> allAlertForidResources = GCPAppPoller.getAllAlertForidResources(idResource, lastIdConsult);
+					HashSet<AlertObject> alerts = allNewAlertManageEngine.get(""+idResource);
+//					long lastIdConsult = service.getLastIdConsult();
+//					System.out.println("** id resources "+idResource+" lastid"+lastIdConsult);
+//					ArrayList<AlertObject> allAlertForidResources = GCPAppPoller.getAllAlertForidResources(idResource, lastIdConsult);
 					
-					if(!allAlertForidResources.isEmpty()){
-						System.out.println("**+ id resources "+idResource+" lastid"+lastIdConsult);
-						
-//						lastIdConsult=allAlertForidResources.get(allAlertForidResources.size()-1).getIdAlert();
-//						alertsServices.getService().setLastIdConsult(lastIdConsult);
-						alertsByServicesObjectMangeEng.put(""+idResource, new HashSet<AlertObject>(allAlertForidResources));
-//						alertsServices.setAlerts(allAlertForidResources);
-						
-						executor.execute(new ServicesReporter(alertsServices));
-//						AlertPolertGCP.addAlert(alertsServices, key);
-						
+//					if(!alerts.isEmpty()){
+//						AlertsServices alertNewServices=new AlertsServices();
+//						alertNewServices.setAlerts(new ArrayList<AlertObject>(alerts));
+//						alertNewServices.setServices(service);
+//						
+//						System.out.println("**+ id resources "+idResource+" lastid"+lastIdConsult);
+//						
+////						lastIdConsult=allAlertForidResources.get(allAlertForidResources.size()-1).getIdAlert();
+////						alertsServices.getService().setLastIdConsult(lastIdConsult);
+//						alertsByServicesObjectMangeEng.put(""+idResource, new HashSet<AlertObject>(allAlertForidResources));
+////						alertsServices.setAlerts(allAlertForidResources);
+//						
+//						executor.execute(new ServicesReporter(alertsServices));
+////						AlertPolertGCP.addAlert(alertsServices, key);
+//						
+//					}
+					ArrayList<AlertsServices> alertForServices = AlertPolertGCP.getAlertForServices(service, allNewAlertManageEngine);
+					if(!alertForServices.isEmpty()){
+						for (AlertsServices alertsServices2 : alertForServices) {
+							executor.execute(new ServicesReporter(alertsServices2));
+							
+						}
 					}
-					
 				}else{
-					HashMap<String, HashSet<AlertObject>> newAlerts = AlertPolertGCP.getNewAlerts();
-					executor.execute(new ServicesReporter());
+					ArrayList<AlertsServices> alertForServices = AlertPolertGCP.getAlertForServices(service, allNewAlertManageEngine);
+					if(!alertForServices.isEmpty()){
+						for (AlertsServices alertsServices2 : alertForServices) {
+							executor.execute(new ServicesReporter(alertsServices2));
+							
+						}
+					}
+//					HashMap<String, HashSet<AlertObject>> newAlerts = AlertPolertGCP.getNewAlerts();
+//					executor.execute(new ServicesReporter());
 //					System.out.println("is new Services Detected");
 //					long idResource = alertsServices.getService().getIdResource();
 //					ArrayList<AlertObject> alerts = AlertPolertGCP.getAlerts(idResource);
@@ -78,6 +98,20 @@ public class ServicesScanerTask extends TimerTask{
 			}
 			System.out.println("Finished all threads");
 		}	 
+		
+		
+		
+//		public String getIdResource(ArrayList<AlertObject> alerts){
+//			for (AlertObject alertObject : alerts) {
+//				String idSource = alertObject.getIdSource();
+//				if(idSource!=null)
+//					return idSource;
+//			}
+//			return null;
+//			
+//		}
+		
+		
 //	@Override
 //	public void run() {
 //		System.out.println("Starting Scanning for alerts "+Calendar.getInstance().getTime());

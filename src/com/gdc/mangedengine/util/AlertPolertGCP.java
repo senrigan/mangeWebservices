@@ -118,6 +118,76 @@ private HashMap<String,AlertsServices> getAlertForServices(ArrayList<Service> se
 }
 
 
+
+public static ArrayList<AlertsServices> getAlertForServices(Service service,HashMap<String  , HashSet<AlertObject>> alertsByServices){
+		long idForServices=-1;
+		ArrayList<AlertsServices> alertsServicesArray=new ArrayList<AlertsServices>();
+		if(service.isEnableDA() && service.isEnableSV() && service.geturlDA()!=null && service.geturlSV()!=null){
+			 System.out.println("services id"+service.getIdService());
+
+			if(service.geturlDA().equals(service.geturlSV())){
+				try {
+					 idForServices= GCPAppPoller.getIDForServices(service.geturlDA());
+					 AlertsServices alertsServices=new AlertsServices();
+					 HashSet<AlertObject> alerts = alertsByServices.get(idForServices);
+					 if(!alerts.isEmpty()){
+						 service.setIdResource(idForServices);
+						 alertsServices.setAlerts(new ArrayList<AlertObject>(alerts));
+						 alertsServices.setType(AlertType.SV);
+						 alertsServices.setServices(service);
+						 alertsServicesArray.add(alertsServices);
+					 }
+				} catch (IOException e) {
+					logger.info("cannot found the services in manageengine for application"+service.getName());
+
+				}
+			}
+		}else{
+			 System.out.println("services id"+service.getIdService());
+	
+			try {
+					idForServices=service.isEnableDA()?GCPAppPoller.getIDForServices(service.geturlDA()):-1;
+					AlertsServices alertsServices=new AlertsServices();
+					 HashSet<AlertObject> alerts = alertsByServices.get(idForServices);
+					if(!alerts.isEmpty()){
+						service.setIdResource(idForServices);
+	//					service.setLastIdConsult(alerts.get(alerts.size()-1).getIdAlert());
+						alertsServices.setServices(service);
+						alertsServices.setAlerts(new ArrayList<AlertObject>(alerts));
+						alertsServices.setType(AlertType.DA);
+						alertsServicesArray.add(alertsServices);
+					}
+			} catch (IOException e) {
+	//			e.printStackTrace();
+				logger.info("cannot found the services in manageengine for application"+service.getName());
+	
+			}
+			
+			try {
+					idForServices=service.isEnableSV()?GCPAppPoller.getIDForServices(service.geturlSV()):-1;
+					AlertsServices alertsServices=new AlertsServices();
+					 HashSet<AlertObject> alerts = alertsByServices.get(idForServices);
+					if(!alerts.isEmpty()){
+						service.setIdResource(idForServices);
+	//					service.setLastIdConsult(alerts.get(alerts.size()-1).getIdAlert());
+						alertsServices.setServices(service);
+						alertsServices.setAlerts(new ArrayList<AlertObject>(alerts));
+						alertsServices.setType(AlertType.SV);
+						alertsServicesArray.add(alertsServices);
+					}
+	//				report(service, alerts, "SV", idForServices);
+			} catch (IOException e) {
+	//			e.printStackTrace();
+				logger.info("cannot found the services in manageengine for application"+service.getName());
+	
+			}
+		}
+		
+	return alertsServicesArray;
+	
+}
+
+
 public static  HashMap<String, HashSet<AlertObject>> getNewAlerts(){
 	HashMap<String, HashSet<AlertObject>> allAlertsAllManageEngine = GCPAppPoller.getAllAlertsAllManageEngine();
 	HashMap<String, HashSet<AlertObject>> newAlertsAux=new HashMap<String,HashSet<AlertObject>>();
