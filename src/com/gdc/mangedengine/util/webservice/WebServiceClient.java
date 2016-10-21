@@ -2,6 +2,8 @@ package com.gdc.mangedengine.util.webservice;
 
 import java.rmi.RemoteException;
 
+import javax.xml.rpc.ServiceException;
+
 import com.mysql.jdbc.DatabaseMetaDataUsingInfoSchema;
 
 import wsManageTicket.CqSamygPreReportTickectWebService;
@@ -11,7 +13,7 @@ import wsManageTicket.Data_ticket_into;
 import wsManageTicket.TicketCqResult;
 
 public class WebServiceClient {
-	public static void main(String[] args) throws RemoteException {
+	public static void main(String[] args) throws RemoteException, ServiceException {
 //		CqSamygPreReportTickectWebServiceLocator serviceLocator=null;
 //		CqSamygPreReportTickectWebServicePortType port=null;
 //		CqSamygPreReportTickectWebService data=null;
@@ -34,6 +36,7 @@ public class WebServiceClient {
 //		}
 		CqSamygPreReportTickectWebServiceLocator service=new CqSamygPreReportTickectWebServiceLocator();
 		CqSamygPreReportTickectWebServicePortType port = service.getCqSamygPreReportTickectWebServicePort();
-		port.wsManageTicketIndex(dataInfo);
+		TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
+		System.out.println(wsManageTicketIndex.getResult());
 	}
 }

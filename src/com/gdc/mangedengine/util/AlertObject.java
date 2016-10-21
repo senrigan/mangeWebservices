@@ -1,9 +1,12 @@
 package com.gdc.mangedengine.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
 
 public class AlertObject {
 	private Date creationTime;
+	private Date modTime;
 	private long typeAlert;
 	private String message;
 	private String idSource;
@@ -31,11 +34,26 @@ public class AlertObject {
 	}
 	
 	public String getDateFormate(){
-		return creationTime.toString();
+		SimpleDateFormat dt=new SimpleDateFormat("yyyy-MM-dd hh:mm");
+		return dt.format(creationTime);
 	}
 	
 	public Date getDateTime(){
 		return this.creationTime;
+	}
+	
+	public void setModTime(Date modTime){
+		this.modTime=modTime;
+	}
+	
+	public Date getModTime(){
+		return this.modTime;
+	}
+	
+	
+	public String getModTimeFornate(){
+		SimpleDateFormat dt=new SimpleDateFormat("yyyy-MM-dd hh:mm");
+		return dt.format(modTime);
 	}
 
 	public String getIdSource() {
@@ -58,9 +76,23 @@ public class AlertObject {
 
 	@Override
 	public String toString() {
-		return "AlertObject [creationTime=" + creationTime + ", typeAlert=" + typeAlert + ", message=" + message
-				+ ", idSource=" + idSource + ", idAlert=" + idAlert + "]";
+		return "AlertObject [creationTime=" + creationTime + ", modTime=" + modTime + ", typeAlert=" + typeAlert
+				+ ", message=" + message + ", idSource=" + idSource + ", idAlert=" + idAlert + "]";
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		AlertObject alert=(AlertObject)obj;
+		return creationTime.equals(alert.creationTime) && modTime.equals(alert.modTime) && 
+				(typeAlert==alert.typeAlert) && message.equals(alert.message) && idSource.equals(alert.idSource) && (idAlert==alert.idAlert);
+	}
+
+	@Override
+	public int hashCode() {
+		return creationTime.hashCode()+modTime.hashCode()+message.hashCode()+idSource.hashCode();
+	}
+	
+	
 	
 	
 	

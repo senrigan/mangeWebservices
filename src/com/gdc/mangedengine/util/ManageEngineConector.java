@@ -37,6 +37,88 @@ public class ManageEngineConector {
 	
 	
 	
+	
+	
+	public String getIp() {
+		return ip;
+	}
+
+
+
+
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+
+
+
+
+	public String getDatabaseName() {
+		return databaseName;
+	}
+
+
+
+
+
+	public void setDatabaseName(String databaseName) {
+		this.databaseName = databaseName;
+	}
+
+
+
+
+
+	public String getUser() {
+		return user;
+	}
+
+
+
+
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+
+
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+
+
+
+	public String getPort() {
+		return port;
+	}
+
+
+
+
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+
+
+
+
 	public static void main(String[] args) {
 		ManageEngineConector conector=new ManageEngineConector();
 		conector.getConnection();

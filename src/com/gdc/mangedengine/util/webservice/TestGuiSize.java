@@ -33,6 +33,6 @@ class TestGuiSize {
 //    		     panel.add(jButton2);
     		    frame.setSize(400, 150);
     		    frame.setVisible(true);
-    		  }
+    	  }
 
 }

@@ -22,7 +22,7 @@ public class CqSamygPreReportTickectWebServiceLocator extends org.apache.axis.cl
     }
 
     // Use to get a proxy class for CqSamygPreReportTickectWebServicePort
-    private java.lang.String CqSamygPreReportTickectWebServicePort_address = "http://192.168.208.8:8080/conquestSamyg/public/ws/preCreateTicket/wsManageTicket.php?wsdl";
+    private java.lang.String CqSamygPreReportTickectWebServicePort_address = "http://192.168.207.220/samyg/conquest/public/ws/preCreateTicket/wsManageTicket.php";
 
     public java.lang.String getCqSamygPreReportTickectWebServicePortAddress() {
         return CqSamygPreReportTickectWebServicePort_address;

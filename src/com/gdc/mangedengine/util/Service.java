@@ -1,6 +1,7 @@
 package com.gdc.mangedengine.util;
 
 public class Service {
+	private long idService;
 	private boolean da;
 	private boolean sv;
 	private String name;
@@ -13,6 +14,14 @@ public class Service {
 		this.name=name;
 	}
 	
+	public long getIdService() {
+		return idService;
+	}
+
+	public void setIdService(long idService) {
+		this.idService = idService;
+	}
+
 	public String getName(){
 		return this.name;
 	}

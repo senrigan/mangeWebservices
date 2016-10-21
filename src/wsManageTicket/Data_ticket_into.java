@@ -8,7 +8,12 @@
 package wsManageTicket;
 
 public class Data_ticket_into  implements java.io.Serializable {
-    private int service;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private int serviceID;
 
     private java.lang.String category;
 
@@ -33,7 +38,7 @@ public class Data_ticket_into  implements java.io.Serializable {
            java.lang.String datetime,
            java.lang.String typeAlert,
            java.lang.String message) {
-           this.service = service;
+           this.serviceID = service;
            this.category = category;
            this.childService = childService;
            this.robot = robot;
@@ -49,7 +54,7 @@ public class Data_ticket_into  implements java.io.Serializable {
      * @return service
      */
     public int getService() {
-        return service;
+        return serviceID;
     }
 
 
@@ -59,7 +64,7 @@ public class Data_ticket_into  implements java.io.Serializable {
      * @param service
      */
     public void setService(int service) {
-        this.service = service;
+        this.serviceID = service;
     }
 
 
@@ -194,7 +199,7 @@ public class Data_ticket_into  implements java.io.Serializable {
         __equalsCalc = obj;
         boolean _equals;
         _equals = true && 
-            this.service == other.getService() &&
+            this.serviceID == other.getService() &&
             ((this.category==null && other.getCategory()==null) || 
              (this.category!=null &&
               this.category.equals(other.getCategory()))) &&
@@ -312,7 +317,14 @@ public class Data_ticket_into  implements java.io.Serializable {
             _javaType, _xmlType, typeDesc);
     }
 
-    /**
+    @Override
+	public String toString() {
+		return "Data_ticket_into [serviceID" + serviceID + ", category=" + category + ", childService=" + childService
+				+ ", robot=" + robot + ", datetime=" + datetime + ", typeAlert=" + typeAlert + ", message=" + message
+				+ ", __equalsCalc=" + __equalsCalc + ", __hashCodeCalc=" + __hashCodeCalc + "]";
+	}
+
+	/**
      * Get Custom Deserializer
      */
     public static org.apache.axis.encoding.Deserializer getDeserializer(
