@@ -2,13 +2,13 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/activation.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/axis-1.4.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/jaxrpc-api-1.1.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/log4j-1.2.17.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/log4j-api-2.6.2.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/mail.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/mysql-connector-java-5.0.8-bin.jar"/>
-	<classpathentry kind="lib" path="/home/senrigan/workspace/ManageEngineWebservicesConsumer/lib/postgresql-8.4-701.jdbc3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/activation.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/axis-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/jaxrpc-api-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/log4j-api-2.6.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/mail.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/mysql-connector-java-5.0.8-bin.jar"/>
+	<classpathentry kind="lib" path="C:/Users/senrigan/Documents/desarrollo/mangeWebservices/lib/postgresql-8.4-701.jdbc3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -10,7 +10,7 @@ public class ManageEngineConector {
 	private String databaseName="amdb";
 	private String user="postgres";
 	private String password="appmanager";
-	private String port="15434";
+	private String port="15435";
 	
 	
 	public Connection getConnection(){

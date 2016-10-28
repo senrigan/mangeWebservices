@@ -18,14 +18,103 @@ import java.util.concurrent.Executors;
 public class GCPAppPoller {
 	
 	
-	
+	public static void main(String[] args) {
+		Connection conector = getManageEngineConector();
+		try {
+			long initTime = System.currentTimeMillis();
+			System.out.println("**");
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
+			System.out.println("executing queryt");
+			ResultSet executeQuery = prepareStatement.executeQuery();
+			System.out.println("fecth size"+prepareStatement.getFetchSize());
+
+			System.out.println("execute quer"+executeQuery);
+			AlertObject alert=null;
+			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
+			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
+			int count=0;
+			while(executeQuery.next()){
+				alert=new AlertObject();
+				alert.setModTime(new Date(executeQuery.getLong("modTime")));
+				alert.setCreationTime(new Date(executeQuery.getLong("createtime")));
+				alert.setIdSource(executeQuery.getString("source"));
+				alert.setMessage(executeQuery.getString("mmessage"));
+				alert.setTypeAlert(executeQuery.getLong("severity"));
+				alert.setIdAlert(executeQuery.getLong("id"));
+				count++;
+//				alertList.add(alert);
+//				System.out.println("alert"+alert);
+//				alertMap.put(alert.getIdSource(), alertList);
+			}
+			long finishTime=System.currentTimeMillis();
+			System.out.println("total "+count);
+			System.out.println("total time "+(finishTime-initTime));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		conector = getManageEngineConector();
+		try {
+			long initTime = System.currentTimeMillis();
+			conector.setAutoCommit(false);
+			System.out.println("**");
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
+			System.out.println("fecth size"+prepareStatement.getFetchSize());
+			prepareStatement.setFetchSize(10000);
+			System.out.println("fecth size"+prepareStatement.getFetchSize());
+
+			System.out.println("executing queryt");
+			ResultSet executeQuery = prepareStatement.executeQuery();
+			System.out.println("execute quer"+executeQuery);
+			AlertObject alert=null;
+			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
+			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
+			int count=0;
+			while(executeQuery.next()){
+				alert=new AlertObject();
+				alert.setModTime(new Date(executeQuery.getLong("modTime")));
+				alert.setCreationTime(new Date(executeQuery.getLong("createtime")));
+				alert.setIdSource(executeQuery.getString("source"));
+				alert.setMessage(executeQuery.getString("mmessage"));
+				alert.setTypeAlert(executeQuery.getLong("severity"));
+				alert.setIdAlert(executeQuery.getLong("id"));
+				count++;
+				//				alertList.add(alert);
+//				System.out.println("alert"+alert);
+//				alertMap.put(alert.getIdSource(), alertList);
+			}
+			long finishTime=System.currentTimeMillis();
+			System.out.println("total "+count);
+			System.out.println("total time "+(finishTime-initTime));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	public ArrayList<Service> getAllServices(){
 		ArrayList<Service> services=new ArrayList<Service>();
 		GcpAplicationConector conector=new GcpAplicationConector();
 		Connection connection = conector.getConnection();
 		System.out.println("connection is null"+connection);
 		String query="SELECT ID,NAME,ACTIVE,DA,SV,EU,CENTRAL_URL_APPMGR_SV,CENTRAL_URL_APPMGR_DA FROM gcpAPPLICATION_NEW WHERE ACTIVE='1' AND (DA='1' OR SV='1' )";
+		PreparedStatement prepareStatement;
+		try {
+			prepareStatement = connection.prepareStatement(query);
+			prepareStatement.setFetchSize(100);
+			ResultSet executeQuery2 = prepareStatement.executeQuery();
+			
+		} catch (SQLException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
 		ResultSet executeQuery = conector.executeQuery(connection, query);
+		
+		try {
+			executeQuery.setFetchSize(10);
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+		}
 		try {
 			
 			while(executeQuery.next()){
