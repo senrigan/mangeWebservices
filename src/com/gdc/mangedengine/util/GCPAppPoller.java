@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,6 +34,7 @@ public class GCPAppPoller {
 			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
 			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
 			int count=0;
+			long lastId=0;
 			while(executeQuery.next()){
 				alert=new AlertObject();
 				alert.setModTime(new Date(executeQuery.getLong("modTime")));
@@ -40,15 +42,17 @@ public class GCPAppPoller {
 				alert.setIdSource(executeQuery.getString("source"));
 				alert.setMessage(executeQuery.getString("mmessage"));
 				alert.setTypeAlert(executeQuery.getLong("severity"));
-				alert.setIdAlert(executeQuery.getLong("id"));
+				long idAlert = executeQuery.getLong("id");
+				if(idAlert>lastId){
+					lastId=idAlert;
+				}
+				alert.setIdAlert(idAlert);
 				count++;
-//				alertList.add(alert);
-//				System.out.println("alert"+alert);
-//				alertMap.put(alert.getIdSource(), alertList);
 			}
 			long finishTime=System.currentTimeMillis();
 			System.out.println("total "+count);
 			System.out.println("total time "+(finishTime-initTime));
+			System.out.println("lasID "+lastId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -71,6 +75,7 @@ public class GCPAppPoller {
 			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
 			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
 			int count=0;
+			long lastId=0;
 			while(executeQuery.next()){
 				alert=new AlertObject();
 				alert.setModTime(new Date(executeQuery.getLong("modTime")));
@@ -78,15 +83,17 @@ public class GCPAppPoller {
 				alert.setIdSource(executeQuery.getString("source"));
 				alert.setMessage(executeQuery.getString("mmessage"));
 				alert.setTypeAlert(executeQuery.getLong("severity"));
-				alert.setIdAlert(executeQuery.getLong("id"));
+				long idAlert = executeQuery.getLong("id");
+				if(idAlert>lastId){
+					lastId=idAlert;
+				}
+				alert.setIdAlert(idAlert);
 				count++;
-				//				alertList.add(alert);
-//				System.out.println("alert"+alert);
-//				alertMap.put(alert.getIdSource(), alertList);
 			}
 			long finishTime=System.currentTimeMillis();
 			System.out.println("total "+count);
 			System.out.println("total time "+(finishTime-initTime));
+			System.out.println("lasID"+lastId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -101,22 +108,9 @@ public class GCPAppPoller {
 		PreparedStatement prepareStatement;
 		try {
 			prepareStatement = connection.prepareStatement(query);
+			connection.setAutoCommit(false);
 			prepareStatement.setFetchSize(100);
-			ResultSet executeQuery2 = prepareStatement.executeQuery();
-			
-		} catch (SQLException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-		ResultSet executeQuery = conector.executeQuery(connection, query);
-		
-		try {
-			executeQuery.setFetchSize(10);
-		} catch (SQLException e2) {
-			e2.printStackTrace();
-		}
-		try {
-			
+			ResultSet executeQuery = prepareStatement.executeQuery();
 			while(executeQuery.next()){
 				Service serv=new Service();
 				serv.setIdService(executeQuery.getLong("ID"));
@@ -131,25 +125,15 @@ public class GCPAppPoller {
 				if(sv.equals("1")){
 					serv.setSv(true);
 				}
-				
-				
-//				String eu = executeQuery.getString("EU");
-//				if(eu.equals("1")){
-//					serv.se
-//				}
 				serv.setUrlSV(executeQuery.getString("CENTRAL_URL_APPMGR_SV"));
 				serv.setUrlDA(executeQuery.getString("CENTRAL_URL_APPMGR_DA"));
 				services.add(serv);
 				
 			}
 			executeQuery.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				executeQuery.close();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+			
+		} catch (SQLException e3) {
+			e3.printStackTrace();
 		}
 		
 		return services;
@@ -356,6 +340,32 @@ public class GCPAppPoller {
 			}
 		}
 		throw new IOException("cannot find the especific service name");
+	}
+	
+	
+	public static void  getListObjectServices(){
+		HashMap<String,Long> listServices=new HashMap<String,Long>();
+		ResultSet executeQuery=null;
+		ManageEngineConector conector=new ManageEngineConector();
+		Connection connection = conector.getConnection();
+		try {
+			PreparedStatement prepareStatement = connection.prepareStatement("SELECT resourceid,resourcename from am_managedobject ");
+			executeQuery = prepareStatement.executeQuery();
+			while(executeQuery.next()){
+				long resoucerId = executeQuery.getLong("resourceid");
+				long long1 = executeQuery.getLong("resourcename");
+			}
+			connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				connection.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+//		throw new IOException("cannot find the especific service name");
+		return listServices;
 	}
 	
 	
