@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.gdc.mangedengine.util.AlertService.alertType;
+import com.gdc.mangedengine.util.AlertsServices.AlertType;
 
 
 
@@ -139,6 +141,46 @@ public class GCPAppPoller {
 		return services;
 	}
 	
+	public HashMap<String , Service> getAllServicesMap(){
+		HashMap<String,Service> services=new HashMap<String,Service>();
+		GcpAplicationConector conector=new GcpAplicationConector();
+		Connection connection = conector.getConnection();
+		String query="SELECT ID,NAME,ACTIVE,DA,SV,EU,CENTRAL_URL_APPMGR_SV,CENTRAL_URL_APPMGR_DA FROM gcpAPPLICATION_NEW WHERE ACTIVE='1' AND (DA='1' OR SV='1' )";
+		PreparedStatement prepareStatement;
+		try {
+			prepareStatement = connection.prepareStatement(query);
+			connection.setAutoCommit(false);
+			prepareStatement.setFetchSize(100);
+			ResultSet executeQuery = prepareStatement.executeQuery();
+			while(executeQuery.next()){
+				Service serv=new Service();
+				serv.setIdService(executeQuery.getLong("ID"));
+				serv.setName(executeQuery.getString("NAME"));
+				
+				String da=executeQuery.getString("DA");
+				serv.setUrlSV(executeQuery.getString("CENTRAL_URL_APPMGR_SV"));
+				serv.setUrlDA(executeQuery.getString("CENTRAL_URL_APPMGR_DA"));
+				if(da.equals("1")){
+					serv.setDa(true);
+					services.put(da, serv);
+				}
+				
+				String sv=executeQuery.getString("SV");
+				if(sv.equals("1")){
+					serv.setSv(true);
+					services.put(sv, serv);
+				}
+				
+			}
+			executeQuery.close();
+			
+		} catch (SQLException e3) {
+			e3.printStackTrace();
+		}
+		return services;
+
+	}
+	
 	
 	public ArrayList<AlertObject> getAllAlertsForServices(String  url,long lastId){
 		ResultSet executeQuery=null;
@@ -216,6 +258,65 @@ public class GCPAppPoller {
 		}
 		
 		return null;
+	}
+	
+	
+	public static void getAllAlertsMaps(Connection conector){
+		try {
+			System.out.println("**");
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
+			ResultSet executeQuery = prepareStatement.executeQuery();
+			AlertObject alert=null;
+			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
+			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
+			ArrayList<AlertService> alerts=new ArrayList<AlertService>();
+			HashMap<Long, String> listObjectService = AlertPolertGCP.getListObjectService();
+			HashMap<String, Service> allServicesMap = AlertPolertGCP.getAllServicesMap();
+			HashMap<String,AlertsServices> alertByServices=new HashMap<String,AlertsServices>();
+			while(executeQuery.next()){
+				AlertsServices alertServices=new AlertsServices();
+				String idSource = executeQuery.getString("source");
+				alert=new AlertObject();
+				alert.setModTime(new Date(executeQuery.getLong("modTime")));
+				alert.setCreationTime(new Date(executeQuery.getLong("createtime")));
+				alert.setIdSource(idSource);
+				alert.setMessage(executeQuery.getString("mmessage"));
+				alert.setTypeAlert(executeQuery.getLong("severity"));
+				alert.setIdAlert(executeQuery.getLong("id"));
+				String serviceUrlName = listObjectService.get(idSource);
+				if(serviceUrlName!=null){
+					Service service = allServicesMap.get(serviceUrlName);
+					ArrayList<AlertObject> alertsNews=null;
+					if(alertByServices.containsKey(idSource)){
+						 alertsNews = alertByServices.get(idSource).getAlerts();
+					}else{
+						alertsNews=new ArrayList<AlertObject>();
+					}
+						
+					if(service!=null){
+						alertsNews.add(alert);
+						if(service.geturlDA().equals(serviceUrlName)){
+							alertServices.setType(AlertType.DA);
+							
+						}
+						if(service.geturlSV().equals(serviceUrlName)){
+							alertServices.setType(AlertType.SV);
+						}
+						alertServices.setAlerts(alertsNews);
+						alertByServices.put(alert.getIdSource(), alertServices);
+					}
+					
+				}
+				
+				alertList.add(alert);
+				System.out.println("alert"+alert);
+				alertMap.put(alert.getIdSource(), alertList);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	
 	}
 	
 	
@@ -343,8 +444,8 @@ public class GCPAppPoller {
 	}
 	
 	
-	public static void  getListObjectServices(){
-		HashMap<String,Long> listServices=new HashMap<String,Long>();
+	public  HashMap<Long, String>  getListObjectServices(HashMap<String,Service> services){
+		HashMap<Long,String> listServices=new HashMap<Long,String>();
 		ResultSet executeQuery=null;
 		ManageEngineConector conector=new ManageEngineConector();
 		Connection connection = conector.getConnection();
@@ -353,7 +454,10 @@ public class GCPAppPoller {
 			executeQuery = prepareStatement.executeQuery();
 			while(executeQuery.next()){
 				long resoucerId = executeQuery.getLong("resourceid");
-				long long1 = executeQuery.getLong("resourcename");
+				String resourceName = executeQuery.getString("resourcename");
+				if(services.containsKey(resourceName)){
+					listServices.put(resoucerId, resourceName);
+				}
 			}
 			connection.close();
 		} catch (SQLException e) {

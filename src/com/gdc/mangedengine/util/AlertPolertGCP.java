@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +23,8 @@ public class AlertPolertGCP {
 	final static Logger logger = Logger.getLogger(AlertPolertGCP.class);
 	private static HashMap<String,AlertsServices> alerByService=new HashMap<String,AlertsServices>();
 	private static HashMap<String  , HashSet<AlertObject>> alertsByServicesObjectMangeEng=new HashMap<String  , HashSet<AlertObject>>();
+	private static HashMap<String, Service> allServicesMap ;
+	private static HashMap<Long, String> listObjectServices ;
 	public AlertPolertGCP(){
 		
 	}
@@ -38,12 +39,21 @@ public class AlertPolertGCP {
 //		}
 		System.out.println("first execution");
 		GCPAppPoller poller=new GCPAppPoller();
+		allServicesMap = poller.getAllServicesMap();
+		listObjectServices = poller.getListObjectServices(allServicesMap);
+//		ArrayList<Service> allServices = poller.getAllServices();
 		alertsByServicesObjectMangeEng =GCPAppPoller.getAllAlertsAllManageEngine();
-		ArrayList<Service> allServices = poller.getAllServices();
 		getAlertForServices(allServices);
-		
 		sendReport();
 	}
+	
+public static HashMap<String, Service> getAllServicesMap(){
+	return allServicesMap;
+}
+
+public static HashMap<Long, String> getListObjectService(){
+	return listObjectServices;
+}
 	
 private HashMap<String,AlertsServices> getAlertForServices(ArrayList<Service> services){
 	for (Service service : services) {
