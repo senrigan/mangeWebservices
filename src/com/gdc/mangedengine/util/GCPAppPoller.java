@@ -22,6 +22,15 @@ public class GCPAppPoller {
 	
 	private static Long lastAlertIdMng1=0L;
 	private static Long lastAlertIdMng2=0L;
+	
+	
+	public static Long getLastAlertIdManageEngine1(){
+		return lastAlertIdMng1;
+	}
+	
+	public static void setLastAlertIdManageEngine1(Long lastAlertId){
+		lastAlertIdMng1=lastAlertId;
+	}
 	public static void main(String[] args) {
 		Connection conector = getManageEngineConector();
 		try {
@@ -295,8 +304,8 @@ public class GCPAppPoller {
 				if(lastId<alertId){
 					lastId=alertId;
 				}
-				String serviceUrlName = listObjectService.get(idSource);
-				System.out.println(serviceUrlName);
+				String serviceUrlName = listObjectService.get(Long.parseLong(idSource));
+				System.out.println(serviceUrlName+"id source "+idSource);
 				if(serviceUrlName!=null){
 					Service service = allServicesMap.get(serviceUrlName);
 					ArrayList<AlertObject> alertsNews=null;
@@ -308,11 +317,11 @@ public class GCPAppPoller {
 						
 					if(service!=null){
 						alertsNews.add(alert);
-						if(service.geturlDA().equals(serviceUrlName)){
+						if(service.geturlDA()!=null &&service.geturlDA().equals(serviceUrlName)){
 							alertServices.setType(AlertType.DA);
 							
 						}
-						if(service.geturlSV().equals(serviceUrlName)){
+						if(service.geturlSV()!=null && service.geturlSV().equals(serviceUrlName)){
 							alertServices.setType(AlertType.SV);
 						}
 						alertServices.setAlerts(alertsNews);
@@ -370,6 +379,9 @@ public class GCPAppPoller {
 //			allAlerts.putAll(alerts3);
 //		return allAlerts;
 	}
+	
+	
+
 	
 	
 	
