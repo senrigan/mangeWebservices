@@ -12,15 +12,16 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.gdc.mangedengine.util.AlertService.alertType;
 import com.gdc.mangedengine.util.AlertsServices.AlertType;
+import com.gdc.mangedengine.util.workers.ServicesReporter;
 
 
 
 
 public class GCPAppPoller {
 	
-	
+	private static Long lastAlertIdMng1=0L;
+	private static Long lastAlertIdMng2=0L;
 	public static void main(String[] args) {
 		Connection conector = getManageEngineConector();
 		try {
@@ -156,27 +157,29 @@ public class GCPAppPoller {
 				Service serv=new Service();
 				serv.setIdService(executeQuery.getLong("ID"));
 				serv.setName(executeQuery.getString("NAME"));
-				
 				String da=executeQuery.getString("DA");
 				serv.setUrlSV(executeQuery.getString("CENTRAL_URL_APPMGR_SV"));
 				serv.setUrlDA(executeQuery.getString("CENTRAL_URL_APPMGR_DA"));
 				if(da.equals("1")){
+//					String da_url = executeQuery.getString("CENTRAL_URL_APPMGR_DA");
 					serv.setDa(true);
-					services.put(da, serv);
+					if(serv.geturlDA()!=null && serv.geturlDA()!="")
+						services.put(serv.geturlDA(), serv);
 				}
-				
 				String sv=executeQuery.getString("SV");
 				if(sv.equals("1")){
+//					String sv_url = executeQuery.getString("CENTRAL_URL_APPMGR_SV");
 					serv.setSv(true);
-					services.put(sv, serv);
+					if(serv.geturlSV()!=null && serv.geturlSV()!="")
+						services.put(serv.geturlSV(), serv);
 				}
-				
 			}
 			executeQuery.close();
 			
 		} catch (SQLException e3) {
 			e3.printStackTrace();
 		}
+		System.out.println(services);
 		return services;
 
 	}
@@ -261,29 +264,39 @@ public class GCPAppPoller {
 	}
 	
 	
-	public static void getAllAlertsMaps(Connection conector){
+	public static Long reportAllAlertsMap(Connection conector,Long lastID){
 		try {
 			System.out.println("**");
-			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from  alert where id > "+lastID+" order  by id asc ");
 			ResultSet executeQuery = prepareStatement.executeQuery();
 			AlertObject alert=null;
-			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
-			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
-			ArrayList<AlertService> alerts=new ArrayList<AlertService>();
+//			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
+//			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
+//			ArrayList<AlertService> alerts=new ArrayList<AlertService>();
 			HashMap<Long, String> listObjectService = AlertPolertGCP.getListObjectService();
+			System.out.println("list object"+listObjectService+"***----\n");
 			HashMap<String, Service> allServicesMap = AlertPolertGCP.getAllServicesMap();
+			System.out.println("list object"+allServicesMap.keySet()+"***----\n");
+
 			HashMap<String,AlertsServices> alertByServices=new HashMap<String,AlertsServices>();
+			ExecutorService executor = Executors.newFixedThreadPool(10);
+			Long lastId=0L;
 			while(executeQuery.next()){
 				AlertsServices alertServices=new AlertsServices();
 				String idSource = executeQuery.getString("source");
+				Long alertId=executeQuery.getLong("id");
 				alert=new AlertObject();
 				alert.setModTime(new Date(executeQuery.getLong("modTime")));
 				alert.setCreationTime(new Date(executeQuery.getLong("createtime")));
 				alert.setIdSource(idSource);
 				alert.setMessage(executeQuery.getString("mmessage"));
 				alert.setTypeAlert(executeQuery.getLong("severity"));
-				alert.setIdAlert(executeQuery.getLong("id"));
+				alert.setIdAlert(alertId);
+				if(lastId<alertId){
+					lastId=alertId;
+				}
 				String serviceUrlName = listObjectService.get(idSource);
+				System.out.println(serviceUrlName);
 				if(serviceUrlName!=null){
 					Service service = allServicesMap.get(serviceUrlName);
 					ArrayList<AlertObject> alertsNews=null;
@@ -304,31 +317,45 @@ public class GCPAppPoller {
 						}
 						alertServices.setAlerts(alertsNews);
 						alertByServices.put(alert.getIdSource(), alertServices);
+						executor.execute(new ServicesReporter(alertServices));
 					}
 					
 				}
-				
-				alertList.add(alert);
-				System.out.println("alert"+alert);
-				alertMap.put(alert.getIdSource(), alertList);
 			}
+				executor.shutdown();
+				while(!executor.isTerminated()){
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				return lastId;
+				
+//				alertList.add(alert);
+//				System.out.println("alert"+alert);
+//				alertMap.put(alert.getIdSource(), alertList);
+			
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return 0L;
 		
 	
 	}
 	
 	
 	
-	public static HashMap<String , HashSet<AlertObject>> getAllAlertsAllManageEngine(){
-		System.out.println("*");
+	public static void reportAllAlertManageEngines(){
+		System.out.println("reporting all alerts manage engine");
 		Connection manageEnigne1 = getManageEngineConector();
-		System.out.println(manageEnigne1);
-		HashMap<String, HashSet<AlertObject>> allAlerts=new HashMap<String, HashSet<AlertObject>>();
-		HashMap<String, HashSet<AlertObject>> alerts1 = getAllAlerts(manageEnigne1);
-		if(alerts1!=null)
-			allAlerts.putAll(alerts1);
+		System.out.println("manage engine conector"+manageEnigne1);
+//		HashMap<String, HashSet<AlertObject>> allAlerts=new HashMap<String, HashSet<AlertObject>>();
+//		HashMap<String, HashSet<AlertObject>> alerts1 = getAllAlerts(manageEnigne1);
+		lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, lastAlertIdMng1);
+//		if(alerts1!=null)
+//			allAlerts.putAll(alerts1);
 //		Connection manageEngine2 = getManageEngine2Conector();
 //		HashMap<String, HashSet<AlertObject>> alerts2 = getAllAlerts(manageEngine2);
 //		System.out.println("alerts 2"+alerts2);
@@ -341,7 +368,7 @@ public class GCPAppPoller {
 //
 //		if(alerts3!=null)
 //			allAlerts.putAll(alerts3);
-		return allAlerts;
+//		return allAlerts;
 	}
 	
 	
@@ -452,9 +479,11 @@ public class GCPAppPoller {
 		try {
 			PreparedStatement prepareStatement = connection.prepareStatement("SELECT resourceid,resourcename from am_managedobject ");
 			executeQuery = prepareStatement.executeQuery();
+			System.out.println("services keys"+services.keySet());
 			while(executeQuery.next()){
 				long resoucerId = executeQuery.getLong("resourceid");
 				String resourceName = executeQuery.getString("resourcename");
+//				System.out.println("containing resorce name"+resourceName);
 				if(services.containsKey(resourceName)){
 					listServices.put(resoucerId, resourceName);
 				}

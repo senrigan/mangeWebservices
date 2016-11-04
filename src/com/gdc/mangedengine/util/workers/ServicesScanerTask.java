@@ -28,7 +28,7 @@ public class ServicesScanerTask extends TimerTask{
 	 
 		@Override
 		public void run() {
-			HashMap<String, HashSet<AlertObject>> allNewAlertManageEngine = GCPAppPoller.getAllAlertsAllManageEngine();
+			HashMap<String, HashSet<AlertObject>> allNewAlertManageEngine = GCPAppPoller.reportAllAlertManageEngines();
 			System.out.println("Starting Scanning for alerts "+Calendar.getInstance().getTime());
 			Set<String> keySet = alertServices.keySet();
 			ExecutorService executor = Executors.newFixedThreadPool(10);

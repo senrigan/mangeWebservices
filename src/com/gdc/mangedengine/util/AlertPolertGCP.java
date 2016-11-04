@@ -42,9 +42,9 @@ public class AlertPolertGCP {
 		allServicesMap = poller.getAllServicesMap();
 		listObjectServices = poller.getListObjectServices(allServicesMap);
 //		ArrayList<Service> allServices = poller.getAllServices();
-		alertsByServicesObjectMangeEng =GCPAppPoller.getAllAlertsAllManageEngine();
-		getAlertForServices(allServices);
-		sendReport();
+		GCPAppPoller.reportAllAlertManageEngines();
+//		getAlertForServices(allServices);
+//		sendReport();
 	}
 	
 public static HashMap<String, Service> getAllServicesMap(){
@@ -208,19 +208,19 @@ public static ArrayList<AlertsServices> getAlertForServices(Service service,Hash
 
 
 public static  HashMap<String, HashSet<AlertObject>> getNewAlerts(){
-	HashMap<String, HashSet<AlertObject>> allAlertsAllManageEngine = GCPAppPoller.getAllAlertsAllManageEngine();
+//	HashMap<String, HashSet<AlertObject>> allAlertsAllManageEngine = GCPAppPoller.reportAllAlertManageEngines();
 	HashMap<String, HashSet<AlertObject>> newAlertsAux=new HashMap<String,HashSet<AlertObject>>();
-	Set<String> keySet = allAlertsAllManageEngine.keySet();
-	for (String key : keySet) {
-		if(alertsByServicesObjectMangeEng.containsKey(key)){
-			HashSet<AlertObject> oldAlerts = alertsByServicesObjectMangeEng.get(key);
-			HashSet<AlertObject> newAlerts = allAlertsAllManageEngine.get(key);
-			newAlerts.removeAll(oldAlerts);
-			newAlertsAux.put(key, newAlerts);
-		}else{
-			newAlertsAux.put(key, allAlertsAllManageEngine.get(key));
-		}
-	}
+//	Set<String> keySet = allAlertsAllManageEngine.keySet();
+//	for (String key : keySet) {
+//		if(alertsByServicesObjectMangeEng.containsKey(key)){
+//			HashSet<AlertObject> oldAlerts = alertsByServicesObjectMangeEng.get(key);
+//			HashSet<AlertObject> newAlerts = allAlertsAllManageEngine.get(key);
+//			newAlerts.removeAll(oldAlerts);
+//			newAlertsAux.put(key, newAlerts);
+//		}else{
+//			newAlertsAux.put(key, allAlertsAllManageEngine.get(key));
+//		}
+//	}
 	return newAlertsAux;
 }
 	
@@ -319,8 +319,8 @@ public static  HashMap<String, HashSet<AlertObject>> getNewAlerts(){
 	public static void main(String[] args) {
 		AlertPolertGCP alert=new AlertPolertGCP();
 		alert.firtsExecution();
-		alert.startTimerTask();
-		alert.startScanFoNewServices();
+//		alert.startTimerTask();
+//		alert.startScanFoNewServices();
 	}
 	
 //	private void report(Service service,ArrayList<AlertObject> alerts,String category,long objectid) throws RemoteException, ServiceException{
