@@ -305,8 +305,8 @@ public class GCPAppPoller {
 					lastId=alertId;
 				}
 				String serviceUrlName = listObjectService.get(Long.parseLong(idSource));
-				System.out.println(serviceUrlName+"id source "+idSource);
 				if(serviceUrlName!=null){
+					System.out.println(serviceUrlName+"id source "+idSource);
 					Service service = allServicesMap.get(serviceUrlName);
 					ArrayList<AlertObject> alertsNews=null;
 					if(alertByServices.containsKey(idSource)){
@@ -317,6 +317,7 @@ public class GCPAppPoller {
 						
 					if(service!=null){
 						alertsNews.add(alert);
+						alertServices.setServices(service);
 						if(service.geturlDA()!=null &&service.geturlDA().equals(serviceUrlName)){
 							alertServices.setType(AlertType.DA);
 							

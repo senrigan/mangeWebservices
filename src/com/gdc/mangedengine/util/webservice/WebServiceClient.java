@@ -37,6 +37,6 @@ public class WebServiceClient {
 		CqSamygPreReportTickectWebServiceLocator service=new CqSamygPreReportTickectWebServiceLocator();
 		CqSamygPreReportTickectWebServicePortType port = service.getCqSamygPreReportTickectWebServicePort();
 		TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
-		System.out.println(wsManageTicketIndex.getResult());
+//		System.out.println(wsManageTicketIndex.getResult());
 	}
 }

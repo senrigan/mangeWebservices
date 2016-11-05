@@ -18,6 +18,7 @@ import com.gdc.mangedengine.util.workers.ServicesReporter;
 import com.gdc.mangedengine.util.workers.ServicesScanerTask;
 
 
+
 public class AlertPolertGCP {
 	
 	final static Logger logger = Logger.getLogger(AlertPolertGCP.class);
