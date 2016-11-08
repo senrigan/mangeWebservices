@@ -14,7 +14,7 @@ public class Data_ticket_into  implements java.io.Serializable {
 
     private java.lang.String childService;
 
-    private int robot;
+    private java.lang.String robot;
 
     private java.lang.String datetime;
 
@@ -29,7 +29,7 @@ public class Data_ticket_into  implements java.io.Serializable {
            int service,
            java.lang.String category,
            java.lang.String childService,
-           int robot,
+           java.lang.String robot,
            java.lang.String datetime,
            java.lang.String typeAlert,
            java.lang.String message) {
@@ -108,7 +108,7 @@ public class Data_ticket_into  implements java.io.Serializable {
      * 
      * @return robot
      */
-    public int getRobot() {
+    public String getRobot() {
         return robot;
     }
 
@@ -118,7 +118,7 @@ public class Data_ticket_into  implements java.io.Serializable {
      * 
      * @param robot
      */
-    public void setRobot(int robot) {
+    public void setRobot(String robot) {
         this.robot = robot;
     }
 
@@ -229,7 +229,7 @@ public class Data_ticket_into  implements java.io.Serializable {
         if (getChildService() != null) {
             _hashCode += getChildService().hashCode();
         }
-        _hashCode += getRobot();
+        _hashCode += getRobot().hashCode();
         if (getDatetime() != null) {
             _hashCode += getDatetime().hashCode();
         }

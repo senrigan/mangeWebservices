@@ -21,7 +21,7 @@ import com.gdc.mangedengine.util.workers.ServicesReporter;
 public class GCPAppPoller {
 	
 	private static Long lastAlertIdMng1=0L;
-	private static Long lastAlertIdMng2=0L;
+//	private static Long lastAlertIdMng2=0L;
 	
 	
 	public static Long getLastAlertIdManageEngine1(){
@@ -274,8 +274,8 @@ public class GCPAppPoller {
 	
 	
 	public static Long reportAllAlertsMap(Connection conector,Long lastID){
+		Long lastId=0L;
 		try {
-			System.out.println("**");
 			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from  alert where id > "+lastID+" order  by id asc ");
 			ResultSet executeQuery = prepareStatement.executeQuery();
 			AlertObject alert=null;
@@ -289,7 +289,6 @@ public class GCPAppPoller {
 
 			HashMap<String,AlertsServices> alertByServices=new HashMap<String,AlertsServices>();
 			ExecutorService executor = Executors.newFixedThreadPool(10);
-			Long lastId=0L;
 			while(executeQuery.next()){
 				AlertsServices alertServices=new AlertsServices();
 				String idSource = executeQuery.getString("source");
@@ -350,7 +349,7 @@ public class GCPAppPoller {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return 0L;
+		return lastId;
 		
 	
 	}
@@ -363,7 +362,11 @@ public class GCPAppPoller {
 		System.out.println("manage engine conector"+manageEnigne1);
 //		HashMap<String, HashSet<AlertObject>> allAlerts=new HashMap<String, HashSet<AlertObject>>();
 //		HashMap<String, HashSet<AlertObject>> alerts1 = getAllAlerts(manageEnigne1);
+		System.out.println("scanning alerts from id "+lastAlertIdMng1);
 		lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, lastAlertIdMng1);
+		setLastAlertIdManageEngine1(lastAlertIdMng1);
+		
+		System.out.println("LAst id ****"+lastAlertIdMng1);
 //		if(alerts1!=null)
 //			allAlerts.putAll(alerts1);
 //		Connection manageEngine2 = getManageEngine2Conector();

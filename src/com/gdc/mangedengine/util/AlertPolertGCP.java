@@ -13,9 +13,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.gdc.mangedengine.util.AlertsServices.AlertType;
-import com.gdc.mangedengine.util.workers.ServicesGestor;
+import com.gdc.mangedengine.util.workers.ServiceScaner;
 import com.gdc.mangedengine.util.workers.ServicesReporter;
-import com.gdc.mangedengine.util.workers.ServicesScanerTask;
+import com.gdc.mangedengine.util.workers.ServicesAlertReporter;
 
 
 
@@ -320,8 +320,8 @@ public static  HashMap<String, HashSet<AlertObject>> getNewAlerts(){
 	public static void main(String[] args) {
 		AlertPolertGCP alert=new AlertPolertGCP();
 		alert.firtsExecution();
-//		alert.startTimerTask();
-//		alert.startScanFoNewServices();
+		alert.startTimerTask();
+		alert.startScanFoNewServices();
 	}
 	
 //	private void report(Service service,ArrayList<AlertObject> alerts,String category,long objectid) throws RemoteException, ServiceException{
@@ -366,13 +366,13 @@ public static  HashMap<String, HashSet<AlertObject>> getNewAlerts(){
 	
 	public void startTimerTask(){
 		Timer timer=new Timer();
-	    timer.scheduleAtFixedRate(new ServicesScanerTask(alerByService,alertsByServicesObjectMangeEng), TimeUnit.MINUTES.toMillis(1),TimeUnit.MINUTES.toMillis(1) );
+	    timer.scheduleAtFixedRate(new ServicesAlertReporter(), TimeUnit.MINUTES.toMillis(1),TimeUnit.MINUTES.toMillis(1) );
 
 	}
 	
 	
 	public void startScanFoNewServices(){
 		Timer timer=new Timer();
-	    timer.scheduleAtFixedRate(new ServicesGestor(), TimeUnit.MINUTES.toMillis(2),TimeUnit.SECONDS.toMillis(30) );
+	    timer.scheduleAtFixedRate(new ServiceScaner(), TimeUnit.MINUTES.toMillis(2),TimeUnit.SECONDS.toMillis(30) );
 	}
 }

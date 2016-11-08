@@ -1,28 +1,13 @@
 package com.gdc.mangedengine.util.workers;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import com.gdc.mangedengine.util.AlertObject;
-import com.gdc.mangedengine.util.AlertPolertGCP;
-import com.gdc.mangedengine.util.AlertService;
-import com.gdc.mangedengine.util.AlertsServices;
 import com.gdc.mangedengine.util.GCPAppPoller;
-import com.gdc.mangedengine.util.Service;
 
-public class ServicesScanerTask extends TimerTask{
-	private HashMap<String,AlertsServices> alertServices;
-	private  HashMap<String  , HashSet<AlertObject>> alertsByServicesObjectMangeEng;
+public class ServicesAlertReporter extends TimerTask{
 
-	 public ServicesScanerTask(HashMap<String,AlertsServices> alertsServices, HashMap<String  , HashSet<AlertObject>> alertsByServices) {
-		 this.alertServices=alertsServices;
-		 this.alertsByServicesObjectMangeEng=alertsByServices;
+	 public ServicesAlertReporter() {
+		
 	 }
 	 
 	 
