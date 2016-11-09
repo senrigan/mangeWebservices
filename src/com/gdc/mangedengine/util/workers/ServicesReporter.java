@@ -59,19 +59,19 @@ public class ServicesReporter  implements Runnable{
 							dataInfo.setRobot(service.getService().geturlSV());
 						dataInfo.setTypeAlert(""+alertObject.getTypeAlert());
 //					
-//					CqSamygPreReportTickectWebServiceLocator servicews=new CqSamygPreReportTickectWebServiceLocator();
-//					CqSamygPreReportTickectWebServicePortType port = servicews.getCqSamygPreReportTickectWebServicePort();
-//					TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
-//					System.out.println("sending to webservices"+dataInfo);
-//					System.out.println("repsonse WS: "+wsManageTicketIndex.getResult());
-						count++;
+					CqSamygPreReportTickectWebServiceLocator servicews=new CqSamygPreReportTickectWebServiceLocator();
+					CqSamygPreReportTickectWebServicePortType port = servicews.getCqSamygPreReportTickectWebServicePort();
+					TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
+					System.out.println("sending to webservices"+dataInfo);
+					System.out.println("repsonse WS: "+wsManageTicketIndex.getResult());
+//						count++;
 					}
 					
 				}catch(Exception ex){
 					ex.printStackTrace();
 				}
 			}
-			System.out.println("conting reporting"+count);
+//			System.out.println("conting reporting"+count);
 		}catch(Exception ex){
 			
 		}

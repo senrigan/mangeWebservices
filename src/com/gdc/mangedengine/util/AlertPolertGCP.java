@@ -1,7 +1,12 @@
 package com.gdc.mangedengine.util;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +31,7 @@ public class AlertPolertGCP {
 	private static HashMap<String  , HashSet<AlertObject>> alertsByServicesObjectMangeEng=new HashMap<String  , HashSet<AlertObject>>();
 	private static HashMap<String, Service> allServicesMap ;
 	private static HashMap<Long, String> listObjectServices ;
+	private static HashMap<Long,Long> parentID=new HashMap<Long,Long>();
 	public AlertPolertGCP(){
 		
 	}
@@ -41,11 +47,14 @@ public class AlertPolertGCP {
 		System.out.println("first execution");
 		GCPAppPoller poller=new GCPAppPoller();
 		allServicesMap = poller.getAllServicesMap();
-		listObjectServices = poller.getListObjectServices(allServicesMap);
-//		ArrayList<Service> allServices = poller.getAllServices();
+		IndexerManagedObject indexManagedObj = poller.getListObjectServices(allServicesMap);
+		listObjectServices = indexManagedObj.getServicesDetectedResourceID();
+//		HashMap<Long, String> servicesNotMatched = indexManagedObj.getServicesNotMatched();
+//		System.out.println("list object services "+listObjectServices.size());
+		setChildObjectService(indexManagedObj);
+//		System.out.println("list object services with child"+listObjectServices.size());
+
 		GCPAppPoller.reportAllAlertManageEngines();
-//		getAlertForServices(allServices);
-//		sendReport();
 	}
 	
 public static HashMap<String, Service> getAllServicesMap(){
@@ -54,6 +63,79 @@ public static HashMap<String, Service> getAllServicesMap(){
 
 public static HashMap<Long, String> getListObjectService(){
 	return listObjectServices;
+}
+
+
+private HashMap<Long,String> setChildObjectService(IndexerManagedObject indexManageObj){
+	ManageEngineConector conect=new ManageEngineConector();
+	Connection conector = conect.getConnection();
+	return getListParentChildObjectId(conector, indexManageObj);
+}
+
+
+private HashMap<Long, String> getListParentChildObjectId(Connection conector,IndexerManagedObject indexerManagedObj){
+	ResultSet executeQuery=null;
+	HashMap<Long,Long> parentChildRelation=new HashMap<Long,Long>();
+	HashMap<Long, String> listObjectService = indexerManagedObj.getServicesDetectedResourceID();
+	HashMap<Long, String> servicesNotMatched = indexerManagedObj.getServicesNotMatched();
+	try {
+		PreparedStatement prepareStatement = conector.prepareStatement("select * from am_parentchildmapper order by parentid asc ");
+		executeQuery = prepareStatement.executeQuery();
+		AlertObject alert=null;
+		System.out.println("services not matched"+servicesNotMatched.size());
+		while(executeQuery.next()){
+			long relationShipId = executeQuery.getLong("relationshipid");
+			long parentId = executeQuery.getLong("parentid");
+			long childId = executeQuery.getLong("childid");
+			if(listObjectService.containsKey(parentId)){
+//				System.out.println("inserting new child id"+childId);
+				listObjectService.put(childId, listObjectService.get(parentId));
+			}else{
+				if(parentId!=-1){
+					if(servicesNotMatched.containsKey(parentId)){
+						servicesNotMatched.put(childId,servicesNotMatched.get(parentId));
+					}else{
+						parentChildRelation.put(childId, parentId);
+						
+					}
+					
+				}
+				
+			}
+		}
+		conector.close();
+	} catch (SQLException e) {
+		e.printStackTrace();
+		try {
+			conector.close();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+	}
+	System.out.println("services not matched"+servicesNotMatched.size());
+	System.out.println("services parent chil relation"+parentChildRelation.size());
+//	checkResourceID(parentChildRelation);
+	return listObjectService;
+}
+
+
+private void checkResourceID(HashMap<Long,Long> parentChildRelation){
+	Set<Long> keySet = parentChildRelation.keySet();
+	for (Long long1 : keySet) {
+		printLastID(long1, parentChildRelation);
+	}
+	System.out.println("final parnetID not found"+parentID.keySet());
+}
+
+private void printLastID(Long resourceid,HashMap<Long,Long> parentChildRelation){
+	Long newResourceId = parentChildRelation.get(resourceid);
+	if(newResourceId!=null){
+//		Long auxResource = parentChildRelation.get(newResourceId);
+		printLastID(newResourceId, parentChildRelation);
+	}else{
+		System.out.println(resourceid);
+		parentID.put(resourceid, null);
+	}
 }
 	
 private HashMap<String,AlertsServices> getAlertForServices(ArrayList<Service> services){

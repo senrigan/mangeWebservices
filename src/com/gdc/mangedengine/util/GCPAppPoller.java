@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.gdc.mangedengine.util.AlertsServices.AlertType;
 import com.gdc.mangedengine.util.workers.ServicesReporter;
@@ -283,9 +284,9 @@ public class GCPAppPoller {
 //			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
 //			ArrayList<AlertService> alerts=new ArrayList<AlertService>();
 			HashMap<Long, String> listObjectService = AlertPolertGCP.getListObjectService();
-			System.out.println("list object"+listObjectService+"***----\n");
+//			System.out.println("list object"+listObjectService+"***----\n");
 			HashMap<String, Service> allServicesMap = AlertPolertGCP.getAllServicesMap();
-			System.out.println("list object"+allServicesMap.keySet()+"***----\n");
+//			System.out.println("list object"+allServicesMap.keySet()+"***----\n");
 
 			HashMap<String,AlertsServices> alertByServices=new HashMap<String,AlertsServices>();
 			ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -305,7 +306,7 @@ public class GCPAppPoller {
 				}
 				String serviceUrlName = listObjectService.get(Long.parseLong(idSource));
 				if(serviceUrlName!=null){
-					System.out.println(serviceUrlName+"id source "+idSource);
+//					System.out.println(serviceUrlName+"id source "+idSource);
 					Service service = allServicesMap.get(serviceUrlName);
 					ArrayList<AlertObject> alertsNews=null;
 					if(alertByServices.containsKey(idSource)){
@@ -329,12 +330,14 @@ public class GCPAppPoller {
 						executor.execute(new ServicesReporter(alertServices));
 					}
 					
+				}else{
+//					System.out.println("id alert no enter"+alertId+" from source"+idSource);
 				}
 			}
 				executor.shutdown();
 				while(!executor.isTerminated()){
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(TimeUnit.SECONDS.toMillis(20));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -357,16 +360,12 @@ public class GCPAppPoller {
 	
 	
 	public static void reportAllAlertManageEngines(){
-		System.out.println("reporting all alerts manage engine");
 		Connection manageEnigne1 = getManageEngineConector();
-		System.out.println("manage engine conector"+manageEnigne1);
 //		HashMap<String, HashSet<AlertObject>> allAlerts=new HashMap<String, HashSet<AlertObject>>();
 //		HashMap<String, HashSet<AlertObject>> alerts1 = getAllAlerts(manageEnigne1);
-		System.out.println("scanning alerts from id "+lastAlertIdMng1);
 		lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, lastAlertIdMng1);
 		setLastAlertIdManageEngine1(lastAlertIdMng1);
 		
-		System.out.println("LAst id ****"+lastAlertIdMng1);
 //		if(alerts1!=null)
 //			allAlerts.putAll(alerts1);
 //		Connection manageEngine2 = getManageEngine2Conector();
@@ -487,22 +486,26 @@ public class GCPAppPoller {
 	}
 	
 	
-	public  HashMap<Long, String>  getListObjectServices(HashMap<String,Service> services){
+	public  IndexerManagedObject  getListObjectServices(HashMap<String,Service> services){
+		IndexerManagedObject indexerManagedObject=new IndexerManagedObject();
 		HashMap<Long,String> listServices=new HashMap<Long,String>();
+		 HashMap<Long, String>  listServiceNotDetected = new  HashMap<Long, String> ();
 		ResultSet executeQuery=null;
 		ManageEngineConector conector=new ManageEngineConector();
 		Connection connection = conector.getConnection();
 		try {
 			PreparedStatement prepareStatement = connection.prepareStatement("SELECT resourceid,resourcename from am_managedobject ");
 			executeQuery = prepareStatement.executeQuery();
-			System.out.println("services keys"+services.keySet());
 			while(executeQuery.next()){
 				long resoucerId = executeQuery.getLong("resourceid");
 				String resourceName = executeQuery.getString("resourcename");
 //				System.out.println("containing resorce name"+resourceName);
 				if(services.containsKey(resourceName)){
 					listServices.put(resoucerId, resourceName);
+				}else{
+					listServiceNotDetected.put(resoucerId, resourceName);
 				}
+				
 			}
 			connection.close();
 		} catch (SQLException e) {
@@ -513,8 +516,10 @@ public class GCPAppPoller {
 				e1.printStackTrace();
 			}
 		}
+		indexerManagedObject.setServicesDetectedResourceID(listServices);
+		indexerManagedObject.setServicesNotMatched(listServiceNotDetected);
+		return indexerManagedObject;
 //		throw new IOException("cannot find the especific service name");
-		return listServices;
 	}
 	
 	
