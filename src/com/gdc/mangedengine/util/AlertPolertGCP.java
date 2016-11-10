@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.gdc.mangedengine.util.AlertsServices.AlertType;
+import com.gdc.mangedengine.util.info.ManageEngineInfo;
 import com.gdc.mangedengine.util.workers.ServiceScaner;
 import com.gdc.mangedengine.util.workers.ServicesReporter;
 import com.gdc.mangedengine.util.workers.ServicesAlertReporter;
@@ -37,23 +38,12 @@ public class AlertPolertGCP {
 	}
 	
 	public void firtsExecution(){
-//		GCPAppPoller poller=new GCPAppPoller();
-//		ArrayList<Service> allServices = poller.getAllServices();
-//		try {
-//			HashMap<String, AlertsServices> alertForServices = getAlertForServices(allServices);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 		System.out.println("first execution");
 		GCPAppPoller poller=new GCPAppPoller();
 		allServicesMap = poller.getAllServicesMap();
 		IndexerManagedObject indexManagedObj = poller.getListObjectServices(allServicesMap);
 		listObjectServices = indexManagedObj.getServicesDetectedResourceID();
-//		HashMap<Long, String> servicesNotMatched = indexManagedObj.getServicesNotMatched();
-//		System.out.println("list object services "+listObjectServices.size());
 		setChildObjectService(indexManagedObj);
-//		System.out.println("list object services with child"+listObjectServices.size());
-
 		GCPAppPoller.reportAllAlertManageEngines();
 	}
 	

@@ -1,11 +1,17 @@
 package com.gdc.mangedengine.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.gdc.mangedengine.util.AlertsServices.AlertType;
+import com.gdc.mangedengine.util.info.ManageEngineInfo;
 import com.gdc.mangedengine.util.workers.ServicesReporter;
 
 
@@ -23,6 +30,16 @@ public class GCPAppPoller {
 	
 	private static Long lastAlertIdMng1=0L;
 //	private static Long lastAlertIdMng2=0L;
+	private static String ipManage1="192.168.207.181";
+	private static String ipManage2="192.168.207.182";
+	private static String ipManage3="192.168.207.183";
+	private static String ipManage4="192.168.207.248";
+	private static String portManager1="15435";
+	private static String portManager2="15434";
+	private static String portManager3="15457";
+	private static String portManager4="15435";
+	private static String fileConfig="consultInfo.conf";
+	
 	
 	
 	public static Long getLastAlertIdManageEngine1(){
@@ -33,83 +50,10 @@ public class GCPAppPoller {
 		lastAlertIdMng1=lastAlertId;
 	}
 	public static void main(String[] args) {
-		Connection conector = getManageEngineConector();
-		try {
-			long initTime = System.currentTimeMillis();
-			System.out.println("**");
-			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
-			System.out.println("executing queryt");
-			ResultSet executeQuery = prepareStatement.executeQuery();
-			System.out.println("fecth size"+prepareStatement.getFetchSize());
-
-			System.out.println("execute quer"+executeQuery);
-			AlertObject alert=null;
-			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
-			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
-			int count=0;
-			long lastId=0;
-			while(executeQuery.next()){
-				alert=new AlertObject();
-				alert.setModTime(new Date(executeQuery.getLong("modTime")));
-				alert.setCreationTime(new Date(executeQuery.getLong("createtime")));
-				alert.setIdSource(executeQuery.getString("source"));
-				alert.setMessage(executeQuery.getString("mmessage"));
-				alert.setTypeAlert(executeQuery.getLong("severity"));
-				long idAlert = executeQuery.getLong("id");
-				if(idAlert>lastId){
-					lastId=idAlert;
-				}
-				alert.setIdAlert(idAlert);
-				count++;
-			}
-			long finishTime=System.currentTimeMillis();
-			System.out.println("total "+count);
-			System.out.println("total time "+(finishTime-initTime));
-			System.out.println("lasID "+lastId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		createLastManageEngineAlertConsultFile();
+		ManageEngineInfo[] lastManagedEngienAlertConsult = getManagaEngineAlertConsultFile();
+		System.out.println(Arrays.toString(lastManagedEngienAlertConsult));
 		
-		
-		conector = getManageEngineConector();
-		try {
-			long initTime = System.currentTimeMillis();
-			conector.setAutoCommit(false);
-			System.out.println("**");
-			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from alert order  by id asc ");
-			System.out.println("fecth size"+prepareStatement.getFetchSize());
-			prepareStatement.setFetchSize(10000);
-			System.out.println("fecth size"+prepareStatement.getFetchSize());
-
-			System.out.println("executing queryt");
-			ResultSet executeQuery = prepareStatement.executeQuery();
-			System.out.println("execute quer"+executeQuery);
-			AlertObject alert=null;
-			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
-			HashSet<AlertObject> alertList=new HashSet<AlertObject>();
-			int count=0;
-			long lastId=0;
-			while(executeQuery.next()){
-				alert=new AlertObject();
-				alert.setModTime(new Date(executeQuery.getLong("modTime")));
-				alert.setCreationTime(new Date(executeQuery.getLong("createtime")));
-				alert.setIdSource(executeQuery.getString("source"));
-				alert.setMessage(executeQuery.getString("mmessage"));
-				alert.setTypeAlert(executeQuery.getLong("severity"));
-				long idAlert = executeQuery.getLong("id");
-				if(idAlert>lastId){
-					lastId=idAlert;
-				}
-				alert.setIdAlert(idAlert);
-				count++;
-			}
-			long finishTime=System.currentTimeMillis();
-			System.out.println("total "+count);
-			System.out.println("total time "+(finishTime-initTime));
-			System.out.println("lasID"+lastId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		
 	}
 	public ArrayList<Service> getAllServices(){
@@ -225,23 +169,27 @@ public class GCPAppPoller {
 		return alerts;
 	}
 	
-	public static Connection getManageEngineConector(){
+	public static Connection getManageEngineConector(ManageEngineInfo info){
 		ManageEngineConector conector=new ManageEngineConector();
-		return conector.getConnection();
-	}
-	public static Connection getManageEngine2Conector(){
-		ManageEngineConector conector = new ManageEngineConector();
-		conector.setIp("192.168.207.182");
+		conector.setIp(info.getIpDatabase());
+		conector.setPort(info.getPortDatabase());
 		return conector.getConnection();
 	}
 	
-	
-	
-	public static Connection getManageEngine3Conector(){
-		ManageEngineConector conector = new ManageEngineConector();
-		conector.setIp("192.168.207.183");
-		return conector.getConnection();
-	}
+//	
+//	public static Connection getManageEngine2Conector(){
+//		ManageEngineConector conector = new ManageEngineConector();
+//		conector.setIp("192.168.207.182");
+//		return conector.getConnection();
+//	}
+//	
+//	
+//	
+//	public static Connection getManageEngine3Conector(){
+//		ManageEngineConector conector = new ManageEngineConector();
+//		conector.setIp("192.168.207.183");
+//		return conector.getConnection();
+//	}
 	
 	public static HashMap<String  , HashSet<AlertObject>> getAllAlerts(Connection conector){
 		try {
@@ -288,9 +236,10 @@ public class GCPAppPoller {
 			HashMap<String, Service> allServicesMap = AlertPolertGCP.getAllServicesMap();
 //			System.out.println("list object"+allServicesMap.keySet()+"***----\n");
 
-			HashMap<String,AlertsServices> alertByServices=new HashMap<String,AlertsServices>();
+//			HashMap<String,AlertsServices> alertByServices=new HashMap<String,AlertsServices>();
 			ExecutorService executor = Executors.newFixedThreadPool(10);
 			while(executeQuery.next()){
+				
 				AlertsServices alertServices=new AlertsServices();
 				String idSource = executeQuery.getString("source");
 				Long alertId=executeQuery.getLong("id");
@@ -309,11 +258,11 @@ public class GCPAppPoller {
 //					System.out.println(serviceUrlName+"id source "+idSource);
 					Service service = allServicesMap.get(serviceUrlName);
 					ArrayList<AlertObject> alertsNews=null;
-					if(alertByServices.containsKey(idSource)){
-						 alertsNews = alertByServices.get(idSource).getAlerts();
-					}else{
+//					if(alertByServices.containsKey(idSource)){
+//						 alertsNews = alertByServices.get(idSource).getAlerts();
+//					}else{
 						alertsNews=new ArrayList<AlertObject>();
-					}
+//					}
 						
 					if(service!=null){
 						alertsNews.add(alert);
@@ -326,7 +275,7 @@ public class GCPAppPoller {
 							alertServices.setType(AlertType.SV);
 						}
 						alertServices.setAlerts(alertsNews);
-						alertByServices.put(alert.getIdSource(), alertServices);
+//						alertByServices.put(alert.getIdSource(), alertServices);
 						executor.execute(new ServicesReporter(alertServices));
 					}
 					
@@ -356,37 +305,112 @@ public class GCPAppPoller {
 		
 	
 	}
+	public static ManageEngineInfo[] getManagaEngineAlertConsultFile(){
+		BufferedReader br=null;
+		ManageEngineInfo [] manageInfo=new ManageEngineInfo[5];
+		try{
+			String currentLine;
+			br= new BufferedReader(new FileReader(fileConfig));
+			int count=0;
+			while((currentLine = br.readLine())!=null){
+				String[] split = currentLine.split(",");
+				ManageEngineInfo manInfo = new ManageEngineInfo();
+				for(int i=0;i<split.length;i++){
+					String[] values = split[i].split("=");
+					if(values[0].contains("appmanage")){
+						manInfo.setManageName(values[0]);
+						manInfo.setLasIdConsult(values[1]);
+					}else if(values[0].contains("ipdatabase")){
+						manInfo.setIpDatabase(values[1]);
+					}else if(values[0].contains("portdatabase")){
+						manInfo.setPortDatabase(values[1]);
+					}
+				}
+				manageInfo[count]=manInfo;
+				count++;
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return manageInfo;
+	}
+	
+	private static void createLastManageEngineAlertConsultFile(){
+		File file =new File(fileConfig);
+		try {
+			if(!file.exists()){
+				System.out.println("suceful to create");
+				if(file.createNewFile()){
+					FileWriter fw = new FileWriter(file.getAbsoluteFile());
+					BufferedWriter bw =new BufferedWriter(fw);
+					bw.write(createLasManageEnginesAlertsConsultValues(null));
+					bw.close();
+				}
+				
+			}else{
+				System.out.println("file already exist");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static String createLasManageEnginesAlertsConsultValues(ManageEngineInfo []  managesEngines){
+		StringBuilder builder=new StringBuilder();
+		if(managesEngines==null){
+			builder.append("appmanage1=0,ipdatabase="+ipManage1+",portdatabase="+portManager1+"\n");
+			builder.append("appmanage2=0,ipdatabase="+ipManage2+",portdatabase="+portManager2+"\n");
+			builder.append("appmanage3=0,ipdatabase="+ipManage3+",portdatabase="+portManager3+"\n");
+			builder.append("appmanage4=0,ipdatabase="+ipManage4+",portdatabase="+portManager4+"\n");
+			builder.append("appmanage5=0,ipdatabase=0,portdatabase=0\n");
+			
+		}else{
+			for (ManageEngineInfo manageEngineInfo : managesEngines) {
+				builder.append(manageEngineInfo.getManageName()+"="+manageEngineInfo.getLasIdConsult()+
+						",ipdatabase="+manageEngineInfo.getIpDatabase()+",portdatabase="+manageEngineInfo.getPortDatabase()+"\n");
+			}
+			
+		}
+		return builder.toString();
+	}
 	
 	
 	
 	public static void reportAllAlertManageEngines(){
-		Connection manageEnigne1 = getManageEngineConector();
-//		HashMap<String, HashSet<AlertObject>> allAlerts=new HashMap<String, HashSet<AlertObject>>();
-//		HashMap<String, HashSet<AlertObject>> alerts1 = getAllAlerts(manageEnigne1);
-		lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, lastAlertIdMng1);
-		setLastAlertIdManageEngine1(lastAlertIdMng1);
+		createLastManageEngineAlertConsultFile();
+		ManageEngineInfo[] managesEnginesInfos = getManagaEngineAlertConsultFile();
+		ManageEngineInfo manageEngineInfo = managesEnginesInfos[0];
+		if(manageEngineInfo.getManageName().equals("appmanage1")){
+			Connection manageEnigne1 = getManageEngineConector(manageEngineInfo);
+			lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, Long.parseLong(manageEngineInfo.getLasIdConsult()));
+			setLastAlertIdManageEngine1(lastAlertIdMng1);
+			System.out.println("updating lastidcount"+lastAlertIdMng1);
+			manageEngineInfo.setLasIdConsult(""+lastAlertIdMng1);
+			managesEnginesInfos[0]=manageEngineInfo;
+		}
+		updateFileConfig(managesEnginesInfos);
 		
-//		if(alerts1!=null)
-//			allAlerts.putAll(alerts1);
-//		Connection manageEngine2 = getManageEngine2Conector();
-//		HashMap<String, HashSet<AlertObject>> alerts2 = getAllAlerts(manageEngine2);
-//		System.out.println("alerts 2"+alerts2);
-//
-//		if(alerts2!=null)
-//			allAlerts.putAll(alerts2);
-//		Connection manageEngine3Conector = getManageEngine3Conector();
-//		HashMap<String, HashSet<AlertObject>> alerts3 = getAllAlerts(manageEngine3Conector);
-//		System.out.println("alerts 3"+alerts2);
-//
-//		if(alerts3!=null)
-//			allAlerts.putAll(alerts3);
-//		return allAlerts;
 	}
 	
 	
 
 	
-	
+	private static void  updateFileConfig(ManageEngineInfo []  manageEngines){
+		File file =new File(fileConfig);
+		try {
+			
+			if(file.exists()){
+				FileWriter fw = new FileWriter(file.getAbsoluteFile());
+				BufferedWriter bw =new BufferedWriter(fw);
+				bw.write(createLasManageEnginesAlertsConsultValues(manageEngines));
+				bw.close();
+			}else{
+				System.out.println("file already exist");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static  ArrayList<AlertObject> getAllAlertForidResources(long idResource){
 		ResultSet executeQuery=null;

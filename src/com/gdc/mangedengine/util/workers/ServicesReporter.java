@@ -46,7 +46,7 @@ public class ServicesReporter  implements Runnable{
 //				System.out.println("category"+category+"servideid"+service.getIdService()+"childerobj"+objectid+"time:2016-04-27 19:17 messsage :"+dataInfo.getMessage()+"typeAlert "+alertObject.getTypeAlert());
 				try{
 					if(alertObject.getTypeAlert()!=5){
-						System.out.println("**AlertObject"+alertObject);
+//						System.out.println("**AlertObject"+alertObject);
 						dataInfo.setCategory(service.getType().toString());
 						dataInfo.setService(Integer.parseInt(""+service.getService().getIdService()));
 						dataInfo.setChildService(""+alertObject.getIdSource());
@@ -61,8 +61,8 @@ public class ServicesReporter  implements Runnable{
 //					
 					CqSamygPreReportTickectWebServiceLocator servicews=new CqSamygPreReportTickectWebServiceLocator();
 					CqSamygPreReportTickectWebServicePortType port = servicews.getCqSamygPreReportTickectWebServicePort();
-					TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
 					System.out.println("sending to webservices"+dataInfo);
+					TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
 					System.out.println("repsonse WS: "+wsManageTicketIndex.getResult());
 //						count++;
 					}
