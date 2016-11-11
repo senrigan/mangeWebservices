@@ -379,14 +379,23 @@ public class GCPAppPoller {
 	public static void reportAllAlertManageEngines(){
 		createLastManageEngineAlertConsultFile();
 		ManageEngineInfo[] managesEnginesInfos = getManagaEngineAlertConsultFile();
-		ManageEngineInfo manageEngineInfo = managesEnginesInfos[0];
-		if(manageEngineInfo.getManageName().equals("appmanage1")){
-			Connection manageEnigne1 = getManageEngineConector(manageEngineInfo);
-			lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, Long.parseLong(manageEngineInfo.getLasIdConsult()));
-			setLastAlertIdManageEngine1(lastAlertIdMng1);
-			System.out.println("updating lastidcount"+lastAlertIdMng1);
-			manageEngineInfo.setLasIdConsult(""+lastAlertIdMng1);
-			managesEnginesInfos[0]=manageEngineInfo;
+//		ManageEngineInfo manageEngineInfo = managesEnginesInfos[0];
+//		if(manageEngineInfo.getManageName().equals("appmanage1")){
+//			Connection manageEnigne1 = getManageEngineConector(manageEngineInfo);
+//			lastAlertIdMng1=reportAllAlertsMap(manageEnigne1, Long.parseLong(manageEngineInfo.getLasIdConsult()));
+//			setLastAlertIdManageEngine1(lastAlertIdMng1);
+//			System.out.println("updating lastidcount"+lastAlertIdMng1);
+//			manageEngineInfo.setLasIdConsult(""+lastAlertIdMng1);
+//			managesEnginesInfos[0]=manageEngineInfo;
+//		}
+		
+		for (int i=1;i<managesEnginesInfos.length;i++) {
+			ManageEngineInfo manageEngineInfo = managesEnginesInfos[i];
+			Connection manageEngine =getManageEngineConector(manageEngineInfo);
+			Long lastAlertManage = reportAllAlertsMap(manageEngine, Long.parseLong(manageEngineInfo.getLasIdConsult()));
+			manageEngineInfo.setLasIdConsult(""+lastAlertManage);
+			managesEnginesInfos[i]=manageEngineInfo;
+			
 		}
 		updateFileConfig(managesEnginesInfos);
 		

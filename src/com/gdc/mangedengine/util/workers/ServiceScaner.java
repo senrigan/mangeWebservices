@@ -24,14 +24,18 @@ public class ServiceScaner extends TimerTask {
 			try{
 				if(service.isEnableDA()){
 					if(service.geturlDA()!=null){
-						if(allServicesMap.containsKey(service.geturlDA())){
+						if(!allServicesMap.containsKey(service.geturlDA())){
+							System.out.println("putting new Services DA"+ service.geturlDA());
 							allServicesMap.put(service.geturlDA(), service);
 						}
 					}
 				}
 				if(service.isEnableSV()){
 					if(service.geturlSV()!=null){
-						allServicesMap.put(service.geturlSV(), service);
+						if(!allServicesMap.containsKey(service.geturlSV())){
+							System.out.println("putting new Services SV"+ service.geturlSV());
+							allServicesMap.put(service.geturlSV(), service);
+						}
 					}
 				}
 				

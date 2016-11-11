@@ -58,7 +58,7 @@ public class ServicesReporter  implements Runnable{
 						if(service.getType()==AlertType.SV)
 							dataInfo.setRobot(service.getService().geturlSV());
 						dataInfo.setTypeAlert(""+alertObject.getTypeAlert());
-//					
+					
 					CqSamygPreReportTickectWebServiceLocator servicews=new CqSamygPreReportTickectWebServiceLocator();
 					CqSamygPreReportTickectWebServicePortType port = servicews.getCqSamygPreReportTickectWebServicePort();
 					System.out.println("sending to webservices"+dataInfo);
@@ -96,5 +96,5 @@ public class ServicesReporter  implements Runnable{
 		
 	}
 	
-	
 }
+	
