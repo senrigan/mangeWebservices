@@ -18,7 +18,7 @@ public class ManageEngineConector {
 		try {
 			Class.forName("org.postgresql.Driver");
 //			connection = DriverManager.getConnection("jdbc:mysql://192.168.207.18:3306/portal_samyg","root", "s3gur0");
-
+			System.out.println("jdbc:postgresql://"+ip+":"+port+"/"+databaseName+" "+user+" "+ password);
 			connection= DriverManager.getConnection("jdbc:postgresql://"+ip+":"+port+"/"+databaseName,user, password);
 //			connection = DriverManager.getConnection(
 //					"jdbc:mysql://"+ip+":"+port+"/"+databaseName, user,

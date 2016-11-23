@@ -390,11 +390,16 @@ public class GCPAppPoller {
 //		}
 		
 		for (int i=1;i<managesEnginesInfos.length;i++) {
-			ManageEngineInfo manageEngineInfo = managesEnginesInfos[i];
-			Connection manageEngine =getManageEngineConector(manageEngineInfo);
-			Long lastAlertManage = reportAllAlertsMap(manageEngine, Long.parseLong(manageEngineInfo.getLasIdConsult()));
-			manageEngineInfo.setLasIdConsult(""+lastAlertManage);
-			managesEnginesInfos[i]=manageEngineInfo;
+			try{
+				ManageEngineInfo manageEngineInfo = managesEnginesInfos[i];
+				Connection manageEngine =getManageEngineConector(manageEngineInfo);
+				Long lastAlertManage = reportAllAlertsMap(manageEngine, Long.parseLong(manageEngineInfo.getLasIdConsult()));
+				manageEngineInfo.setLasIdConsult(""+lastAlertManage);
+				managesEnginesInfos[i]=manageEngineInfo;
+				
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 			
 		}
 		updateFileConfig(managesEnginesInfos);
@@ -552,7 +557,6 @@ public class GCPAppPoller {
 		indexerManagedObject.setServicesDetectedResourceID(listServices);
 		indexerManagedObject.setServicesNotMatched(listServiceNotDetected);
 		return indexerManagedObject;
-//		throw new IOException("cannot find the especific service name");
 	}
 	
 	

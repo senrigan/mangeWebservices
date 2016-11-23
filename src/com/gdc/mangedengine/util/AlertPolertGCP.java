@@ -45,7 +45,7 @@ public class AlertPolertGCP {
 		System.out.println("no matchet keys"+indexManagedObj.getServicesNotMatched().keySet());
 		listObjectServices = indexManagedObj.getServicesDetectedResourceID();
 		setChildObjectService(indexManagedObj);
-//		GCPAppPoller.reportAllAlertManageEngines();
+		GCPAppPoller.reportAllAlertManageEngines();
 	}
 	
 public static HashMap<String, Service> getAllServicesMap(){
@@ -105,7 +105,7 @@ private HashMap<Long, String> getListParentChildObjectId(Connection conector,Ind
 	}
 	System.out.println("services not matched"+servicesNotMatched.size());
 	System.out.println("services parent chil relation"+parentChildRelation.size());
-	checkResourceID(parentChildRelation);
+//	checkResourceID(parentChildRelation);
 	return listObjectService;
 }
 
