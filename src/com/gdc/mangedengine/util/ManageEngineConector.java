@@ -11,6 +11,7 @@ public class ManageEngineConector {
 	private String user="postgres";
 	private String password="appmanager";
 	private String port="15435";
+	private String [] ports={"15435","15434","15457","15433"};
 	
 	
 	public Connection getConnection(){
@@ -25,9 +26,9 @@ public class ManageEngineConector {
 //					password);
 		} catch (SQLException e) {
 
-			System.out.println("Connection Failed! Check output console");
 			e.printStackTrace();
-			return null;
+			return retryOtherPort();
+//			return null;
 
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -35,6 +36,28 @@ public class ManageEngineConector {
 		return connection;
 	}
 	
+	
+	
+	private Connection retryOtherPort(){
+		Connection connection = null;
+		try{
+			Class.forName("org.postgresql.Driver");
+			for(int i=0;i<ports.length;i++){
+				try {
+					System.out.println("ports "+ports[i]);
+					connection= DriverManager.getConnection("jdbc:postgresql://"+ip+":"+ports[i]+"/"+databaseName,user, password);
+				} catch (SQLException e) {
+//					e.printStackTrace();
+				}
+			}
+			
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return connection;
+			
+		
+	}
 	
 	
 	
@@ -119,9 +142,5 @@ public class ManageEngineConector {
 
 
 
-	public static void main(String[] args) {
-		ManageEngineConector conector=new ManageEngineConector();
-		conector.getConnection();
-	}
 
 }

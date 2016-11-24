@@ -61,6 +61,7 @@ public class ServicesReporter  implements Runnable{
 					
 					CqSamygPreReportTickectWebServiceLocator servicews=new CqSamygPreReportTickectWebServiceLocator();
 					CqSamygPreReportTickectWebServicePortType port = servicews.getCqSamygPreReportTickectWebServicePort();
+					System.out.println("alert object"+alertObject);
 					System.out.println("sending to webservices"+dataInfo);
 					TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
 					System.out.println("repsonse WS: "+wsManageTicketIndex.getResult());

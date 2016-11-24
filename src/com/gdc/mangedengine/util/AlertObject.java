@@ -52,7 +52,7 @@ public class AlertObject {
 	
 	
 	public String getModTimeFornate(){
-		SimpleDateFormat dt=new SimpleDateFormat("yyyy-MM-dd hh:mm");
+		SimpleDateFormat dt=new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		return dt.format(modTime);
 	}
 

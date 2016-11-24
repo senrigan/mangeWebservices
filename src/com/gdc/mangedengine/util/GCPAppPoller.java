@@ -301,6 +301,9 @@ public class GCPAppPoller {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		if(lastId==0){
+			lastId=lastID;
+		}
 		return lastId;
 		
 	
@@ -389,19 +392,24 @@ public class GCPAppPoller {
 //			managesEnginesInfos[0]=manageEngineInfo;
 //		}
 		
-		for (int i=1;i<managesEnginesInfos.length;i++) {
+		for (int i=0;i<managesEnginesInfos.length;i++) {
 			try{
 				ManageEngineInfo manageEngineInfo = managesEnginesInfos[i];
-				Connection manageEngine =getManageEngineConector(manageEngineInfo);
-				Long lastAlertManage = reportAllAlertsMap(manageEngine, Long.parseLong(manageEngineInfo.getLasIdConsult()));
-				manageEngineInfo.setLasIdConsult(""+lastAlertManage);
-				managesEnginesInfos[i]=manageEngineInfo;
-				
+				System.out.println("consulting ip "+manageEngineInfo.getIpDatabase()+manageEngineInfo.getIpDatabase().equals(ipManage1));
+				if(!manageEngineInfo.getIpDatabase().equals(ipManage1)){
+					
+					Connection manageEngine =getManageEngineConector(manageEngineInfo);
+					Long lastAlertManage = reportAllAlertsMap(manageEngine, Long.parseLong(manageEngineInfo.getLasIdConsult()));
+					manageEngineInfo.setLasIdConsult(""+lastAlertManage);
+					managesEnginesInfos[i]=manageEngineInfo;
+					
+				}
 			}catch(Exception ex){
 				ex.printStackTrace();
 			}
 			
 		}
+		System.out.println("******* updating alert ******* "+Arrays.toString(managesEnginesInfos));
 		updateFileConfig(managesEnginesInfos);
 		
 	}
