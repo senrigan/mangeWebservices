@@ -7,9 +7,11 @@ import java.util.Date;
 public class AlertObject {
 	private Date creationTime;
 	private Date modTime;
-	private long typeAlert;
 	private String message;
 	private String idSource;
+	private String entity;
+	private String attribute;
+	private long typeAlert;
 	private long idAlert;
 	
 	
@@ -34,7 +36,7 @@ public class AlertObject {
 	}
 	
 	public String getDateFormate(){
-		SimpleDateFormat dt=new SimpleDateFormat("yyyy-MM-dd hh:mm");
+		SimpleDateFormat dt=new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		return dt.format(creationTime);
 	}
 	
@@ -76,8 +78,9 @@ public class AlertObject {
 
 	@Override
 	public String toString() {
-		return "AlertObject [creationTime=" + creationTime + ", modTime=" + modTime + ", typeAlert=" + typeAlert
-				+ ", message=" + message + ", idSource=" + idSource + ", idAlert=" + idAlert + "]";
+		return "AlertObject [creationTime=" + creationTime + ", modTime=" + modTime + ", message=" + message
+				+ ", idSource=" + idSource + ", entity=" + entity + ", attribute=" + attribute + ", typeAlert="
+				+ typeAlert + ", idAlert=" + idAlert + "]";
 	}
 
 	@Override
@@ -90,6 +93,22 @@ public class AlertObject {
 	@Override
 	public int hashCode() {
 		return creationTime.hashCode()+modTime.hashCode()+message.hashCode()+idSource.hashCode();
+	}
+
+	public String getEntity() {
+		return entity;
+	}
+
+	public void setEntity(String entity) {
+		this.entity = entity;
+	}
+
+	public String getAttribute() {
+		return attribute;
+	}
+
+	public void setAttribute(String attribute) {
+		this.attribute = attribute;
 	}
 	
 	

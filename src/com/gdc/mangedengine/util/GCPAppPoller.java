@@ -30,15 +30,16 @@ public class GCPAppPoller {
 	
 	private static Long lastAlertIdMng1=0L;
 //	private static Long lastAlertIdMng2=0L;
-	private static String ipManage1="192.168.207.181";
-	private static String ipManage2="192.168.207.182";
-	private static String ipManage3="192.168.207.183";
-	private static String ipManage4="192.168.207.248";
-	private static String portManager1="15435";
-	private static String portManager2="15434";
-	private static String portManager3="15457";
-	private static String portManager4="15435";
-	private static String fileConfig="consultInfo.conf";
+	private static final String ipManage1="192.168.207.181";
+	private static final String ipManage2="192.168.207.182";
+	private static final String ipManage3="192.168.207.183";
+	private static final String ipManage4="192.168.207.248";
+	private static final String portManager1="15435";
+	private static final String portManager2="15434";
+	private static final String portManager3="15457";
+	private static final String portManager4="15435";
+	private static final String fileConfig="consultInfo.conf";
+	private static HashMap<String,String> entityAttribute=new HashMap<String,String>();
 	
 	
 	
@@ -221,11 +222,29 @@ public class GCPAppPoller {
 		return null;
 	}
 	
-	
+	public static String parseEntity(String entityString){
+		return entityString.substring(entityString.indexOf("_")+1,entityString.length());
+	}
+	public static String getAttributeEntity(Connection conector,String entityString){
+		try{
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT attributeid,resourcetype,displayname from am_attributes where attributeid="+entityString);
+			ResultSet executeQuery = prepareStatement.executeQuery();
+			while(executeQuery.next()){
+				String displayName= executeQuery.getString("displayname");
+				entityAttribute.put(entityString, displayName);
+				return displayName;
+			}
+		}catch(SQLException ex){
+			ex.printStackTrace();
+		}
+		return null;
+	}
 	public static Long reportAllAlertsMap(Connection conector,Long lastID){
 		Long lastId=0L;
 		try {
-			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source from  alert where id > "+lastID+" order  by id asc ");
+			PreparedStatement prepareStatement = conector.prepareStatement("SELECT id,severity,createtime,modtime,mmessage,source,entity from  alert where id > "+lastID+" order  by id asc ");
+			System.out.println("consulting id *******"+lastId);
+			System.out.println("Query **** SELECT id,severity,createtime,modtime,mmessage,source,entity from  alert where id > "+lastID+" order  by id asc ");
 			ResultSet executeQuery = prepareStatement.executeQuery();
 			AlertObject alert=null;
 //			HashMap<String, HashSet<AlertObject>> alertMap=new HashMap<String, HashSet<AlertObject>>();
@@ -250,12 +269,17 @@ public class GCPAppPoller {
 				alert.setMessage(executeQuery.getString("mmessage"));
 				alert.setTypeAlert(executeQuery.getLong("severity"));
 				alert.setIdAlert(alertId);
+				if(entityAttribute.containsKey(alert.getEntity())){
+					alert.setAttribute(entityAttribute.get(alert.getEntity()));
+				}
+				alert.setEntity(parseEntity(executeQuery.getString("entity")));
 				if(lastId<alertId){
 					lastId=alertId;
 				}
 				String serviceUrlName = listObjectService.get(Long.parseLong(idSource));
 				if(serviceUrlName!=null){
 //					System.out.println(serviceUrlName+"id source "+idSource);
+					alert.setAttribute(getAttributeEntity(conector, alert.getEntity()));
 					Service service = allServicesMap.get(serviceUrlName);
 					ArrayList<AlertObject> alertsNews=null;
 //					if(alertByServices.containsKey(idSource)){
@@ -291,7 +315,6 @@ public class GCPAppPoller {
 						e.printStackTrace();
 					}
 				}
-				return lastId;
 				
 //				alertList.add(alert);
 //				System.out.println("alert"+alert);
@@ -396,7 +419,7 @@ public class GCPAppPoller {
 			try{
 				ManageEngineInfo manageEngineInfo = managesEnginesInfos[i];
 				System.out.println("consulting ip "+manageEngineInfo.getIpDatabase()+manageEngineInfo.getIpDatabase().equals(ipManage1));
-				if(!manageEngineInfo.getIpDatabase().equals(ipManage1)){
+				if(!manageEngineInfo.getIpDatabase().equals(ipManage1) && (!manageEngineInfo.getIpDatabase().equals("0"))){
 					
 					Connection manageEngine =getManageEngineConector(manageEngineInfo);
 					Long lastAlertManage = reportAllAlertsMap(manageEngine, Long.parseLong(manageEngineInfo.getLasIdConsult()));

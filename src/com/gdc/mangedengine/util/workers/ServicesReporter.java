@@ -56,12 +56,12 @@ public class ServicesReporter  implements Runnable{
 						if(service.getType()==AlertType.DA)
 							dataInfo.setRobot(service.getService().geturlDA());
 						if(service.getType()==AlertType.SV)
-							dataInfo.setRobot(service.getService().geturlSV());
+							dataInfo.setRobot(service.getService().geturlSV()+"/"+alertObject.getAttribute());
 						dataInfo.setTypeAlert(""+alertObject.getTypeAlert());
 					
 					CqSamygPreReportTickectWebServiceLocator servicews=new CqSamygPreReportTickectWebServiceLocator();
 					CqSamygPreReportTickectWebServicePortType port = servicews.getCqSamygPreReportTickectWebServicePort();
-					System.out.println("alert object"+alertObject);
+//					System.out.println("alert object"+alertObject);
 					System.out.println("sending to webservices"+dataInfo);
 					TicketCqResult wsManageTicketIndex = port.wsManageTicketIndex(dataInfo);
 					System.out.println("repsonse WS: "+wsManageTicketIndex.getResult());
